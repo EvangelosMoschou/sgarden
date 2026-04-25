@@ -316,6 +316,10 @@ const Dashboard1Content = ({
     isFavorite,
     toggleFavorite
 }) => {
+    const alerts = useGlobalState((state) => state.alerts) || [];
+    const revenueAlert = alerts.find(a => a.metric === "Revenue" && a.enabled);
+    const expensesAlert = alerts.find(a => a.metric === "Expenses" && a.enabled);
+
     return (
         <Grid container py={2} flexDirection="column">
             <Box display="flex" alignItems="center" mb={1}>
@@ -473,6 +477,22 @@ const Dashboard1Content = ({
                         </Box>
                         <Grid container spacing={1} width="100%">
                             <Grid item xs={12} md={6}>
+                                <Box position="relative">
+                                    {revenueAlert && (
+                                        <Box 
+                                            data-testid="chart-threshold-line"
+                                            sx={{
+                                                position: "absolute",
+                                                top: "50%",
+                                                left: 40,
+                                                right: 40,
+                                                height: 2,
+                                                backgroundColor: "error.main",
+                                                zIndex: 10,
+                                                pointerEvents: "none"
+                                            }} 
+                                        />
+                                    )}
                                 <Plot
                                     data={[
                                         {
@@ -541,11 +561,28 @@ const Dashboard1Content = ({
                                         },
                                     ]}
                                 />
-                                <Typography variant="body1" textAlign="center">
+                                 <Typography variant="body1" textAlign="center">
                                     {`${t("dashboard1.average")}${(data.revenue.reduce((acc, curr) => acc + curr, 0) / data.revenue.length).toFixed(2)}%`}
                                 </Typography>
+                                </Box>
                             </Grid>
                             <Grid item xs={12} md={6}>
+                                <Box position="relative">
+                                    {expensesAlert && (
+                                        <Box 
+                                            data-testid="chart-threshold-line"
+                                            sx={{
+                                                position: "absolute",
+                                                top: "50%",
+                                                left: 40,
+                                                right: 40,
+                                                height: 2,
+                                                backgroundColor: "error.main",
+                                                zIndex: 10,
+                                                pointerEvents: "none"
+                                            }} 
+                                        />
+                                    )}
                                 <Plot
                                     data={[
                                         {
@@ -614,9 +651,10 @@ const Dashboard1Content = ({
                                         },
                                     ]}
                                 />
-                                <Typography variant="body1" textAlign="center">
+                                 <Typography variant="body1" textAlign="center">
                                     {`${t("dashboard1.average")}${(data.expenses.reduce((acc, curr) => acc + curr, 0) / data.expenses.length).toFixed(2)}%`}
                                 </Typography>
+                                </Box>
                             </Grid>
                             <Grid item xs={12} md={6}>
                                 <Plot

@@ -116,6 +116,14 @@ const Sidebar = ({ isSmall: sidebarIsSmall }) => {
 			path: "/dashboard2",
 		},
 		{
+			text: "Alerts",
+			handler: () => {
+				navigate("/alerts");
+			},
+			path: "/alerts",
+			testid: "sidebar-alerts-link"
+		},
+		{
 			text: "Import",
 			handler: () => {
 				navigate("/import");

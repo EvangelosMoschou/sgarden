@@ -66,6 +66,31 @@ export default create(persist(
 			notifications: state.notifications.map((notification) => ({ ...notification, read: true })),
 		})),
 		clearNotifications: () => setState({ notifications: [] }),
+		alerts: [],
+		addAlert: (alert) => setState((state) => ({
+			alerts: [
+				{
+					id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+					metric: alert.metric,
+					operator: alert.operator,
+					threshold: alert.threshold,
+					enabled: true,
+					createdAt: new Date().toISOString(),
+				},
+				...state.alerts,
+			]
+		})),
+		updateAlert: (id, updates) => setState((state) => ({
+			alerts: state.alerts.map(a => a.id === id ? { ...a, ...updates } : a)
+		})),
+		deleteAlert: (id) => setState((state) => ({
+			alerts: state.alerts.filter(a => a.id !== id)
+		})),
+		triggeredAlerts: [],
+		addTriggeredAlert: (alert) => setState((state) => ({
+			triggeredAlerts: [{...alert, id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`, triggeredAt: new Date().toISOString()}, ...state.triggeredAlerts]
+		})),
+		clearTriggeredAlerts: () => setState({ triggeredAlerts: [] }),
 		dashboardNotes: {},
 		addDashboardNote: (dashboardKey, content) => setState((state) => {
 			const dashboardNotes = state.dashboardNotes || {};
