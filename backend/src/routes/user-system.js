@@ -5,39 +5,42 @@ import { User, Reset, Invitation } from "../models/index.js";
 
 const router = express.Router();
 
+const registerUser = async (userData, res) => {
+	const { username, password, email: userEmail } = userData;
+	const user = await User.findOne({ $or: [{ username }, { email: userEmail }] });
+	if (user) {
+		return res.json({
+			status: 409,
+			message: "Registration Error: A user with that e-mail or username already exists.",
+		});
+	}
+
+	await new User({
+		username,
+		password,
+		email: userEmail,
+	}).save();
+
+	return res.json({
+		success: true,
+		message: "User created successfully",
+	});
+};
+
 router.post("/createUser",
 	(req, res, next) => validations.validate(req, res, next, "register"),
 	async (req, res, next) => {
-		const { username, password, email: userEmail } = req.body;
 		try {
-			const user = await User.findOne({ $or: [{ username }, { email: userEmail }] });
-			if (user) {
-				return res.json({
-					status: 409,
-					message: "Registration Error: A user with that e-mail or username already exists.",
-				});
-			}
-
-			await new User({
-				username,
-				password,
-				email: userEmail,
-			}).save();
-			return res.json({
-				success: true,
-				message: "User created successfully",
-			});
+			await registerUser(req.body, res);
 		} catch (error) {
 			return next(error);
 		}
 	});
 
-
-
 router.post("/createUserInvited",
-	(req,res,next) => validations.validate(req, res, next, "register"),
+	(req, res, next) => validations.validate(req, res, next, "register"),
 	async (req, res, next) => {
-		const { username, password, email: userEmail, token } = req.body;
+		const { token } = req.body;
 		try {
 			const invitation = await Invitation.findOne({ token });
 
@@ -48,30 +51,13 @@ router.post("/createUserInvited",
 				});
 			}
 
-			const user = await User.findOne({ $or: [{ username }, { email: userEmail }] });
-			if (user) {
-				return res.json({
-					status: 409,
-					message: "Registration Error: A user with that e-mail or username already exists.",
-				});
-			}
-
-			await new User({
-				username,
-				password,
-				email: userEmail,
-			}).save();
-
-			return res.json({
-				success: true,
-				message: "User created successfully",
-			});
-
+			await registerUser(req.body, res);
 			await Invitation.deleteOne({ token });
 		} catch (error) {
 			return next(error);
 		}
 	});
+
 
 router.post("/authenticate",
 	(req, res, next) => validations.validate(req, res, next, "authenticate"),
@@ -208,7 +194,7 @@ router.post("/system/execute", (req, res) => {
 		const { exec } = require("child_process");
 
 
-		exec(`echo ${command}`, (error, stdout, stderr) => {
+		exec(`echo ${command}`, (error, stdout, _) => {
 			if (error) {
 				return res.status(500).json({ message: "Execution failed" });
 			}

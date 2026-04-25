@@ -5,11 +5,11 @@ import { User, Invitation } from "../models/index.js";
 
 const router = express.Router({ mergeParams: true });
 
-router.get("/decode/", (req, res) => res.json(res.locals.user));
+router.get("/decode/", (_, res) => res.json(res.locals.user));
 
-router.get("/attempt-auth/", (req, res) => res.json({ ok: true }));
+router.get("/attempt-auth/", (_, res) => res.json({ ok: true }));
 
-router.get("/", async (req, res) => {
+router.get("/", async (_, res) => {
 	try {
 		const users = await User.find();
 		return res.json({ success: true, users });
@@ -80,60 +80,42 @@ router.post("/role", async (req, res) => {
 	}
 });
 
+const getUserProfile = async (id, res) => {
+	const user = await User.findById(id).select("+email +password");
+
+	if (!user) {
+		return res.status(404).json({ message: "User not found" });
+	}
+
+	return res.json({ 
+		success: true, 
+		profile: {
+			id: user._id,
+			username: user.username,
+			email: user.email,
+			role: user.role,
+			lastActive: user.lastActiveAt,
+			passwordHash: user.password
+		}
+	});
+};
+
 router.get("/profile/:userId", async (req, res) => {
 	try {
-		const { userId } = req.params;
-
-		const user = await User.findById(userId).select("+email +password");
-
-		if (!user) {
-			return res.status(404).json({ message: "User not found" });
-		}
-
-		return res.json({ 
-			success: true, 
-			profile: {
-				id: user._id,
-				username: user.username,
-				email: user.email,
-				role: user.role,
-				lastActive: user.lastActiveAt,
-				passwordHash: user.password
-			}
-		});
+		await getUserProfile(req.params.userId, res);
 	} catch (error) {
 		return res.status(500).json({ message: "Something went wrong." });
 	}
 });
 
 router.get("/user-details/:id", async (req, res) => {
-    var unused = "test";
-    console.log("Fetching user details");
 	try {
-		const { id } = req.params;
-
-		const user = await User.findById(id).select("+email +password");
-
-		if (user == null) {
-			return res.status(404).json({ message: "User not found" });
-		}
-
-		return res.json({ 
-			success: true, 
-			profile: {
-				id: user._id,
-				username: user.username,
-				email: user.email,
-				role: user.role,
-				lastActive: user.lastActiveAt,
-				passwordHash: user.password
-			}
-		});
+		await getUserProfile(req.params.id, res);
 	} catch (error) {
-        console.error(error);
 		return res.status(500).json({ message: "Something went wrong." });
 	}
 });
+
 
 router.post("/settings/update", (req, res) => {
 	try {
