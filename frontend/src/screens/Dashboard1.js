@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Grid, Typography, Box, Button, TextField } from "@mui/material";
+import { Grid, Typography, Box } from "@mui/material";
 import Dropdown from "../components/Dropdown.js";
 import Card from "../components/Card.js";
 import Plot from "../components/Plot.js";
@@ -8,18 +8,17 @@ import Map from "../components/Map.js";
 
 import colors from "../_colors.scss";
 
-const availableRegions = ["Thessaloniki", "Athens", "Patras"];
-const availableMetrics = ["Revenue", "Expenses", "Profit", "Growth Rate"];
-const generateRandomData = (min = 0, max = 10) => Math.random() * (max - min) + min;
-const randomDate = () => new Date(new Date(2020, 0, 1).getTime() + Math.random() * (new Date().getTime() - new Date(2020, 0, 1).getTime()));
+import { availableRegions, availableMetrics } from "../utils/constants.js";
+import { generateRandomDecimal, randomDate } from "../utils/dashboard.js";
 
 const Dashboard = () => {
+
     const [selectedRegion, setSelectedRegion] = useState("Thessaloniki");
     const [selectedMetric, setSelectedMetric] = useState(null);
     const [fromDate, setFromDate] = useState(new Date(new Date().setFullYear(new Date().getFullYear() - 1)));
     const [toDate, setToDate] = useState(new Date());
     const [months, setMonths] = useState([]);
-    const [data, setData] = useState({ keyMetric: { date: randomDate(), value: generateRandomData(0, 100) }, revenue: [], expenses: [], profit: [], growthRate: [] });
+    const [data, setData] = useState({ keyMetric: { date: randomDate(), value: generateRandomDecimal(0, 100) }, revenue: [], expenses: [], profit: [], growthRate: [] });
 
     const changePlotData = (fromD, toD) => {
         if (fromD && toD) {
@@ -32,16 +31,16 @@ const Dashboard = () => {
             }
             setMonths(months);
 
-            const revenue = months.map((month) => generateRandomData(0, 20));
-            const expenses = months.map((month) => generateRandomData(0, 30));
-            const profit = months.map((month) => generateRandomData(0, 40));
-            const growthRate = months.map((month) => generateRandomData(0, 50));
+            const revenue = months.map(() => generateRandomDecimal(0, 20));
+            const expenses = months.map(() => generateRandomDecimal(0, 30));
+            const profit = months.map(() => generateRandomDecimal(0, 40));
+            const growthRate = months.map(() => generateRandomDecimal(0, 50));
             setData({ revenue, expenses, profit, growthRate, keyMetric: data.keyMetric });
         }
     };
 
     const changeKeyMetricData = () => {
-        const keyMetric = { date: randomDate(), value: generateRandomData(0, 100) };
+        const keyMetric = { date: randomDate(), value: generateRandomDecimal(0, 100) };
         setData({ ...data, keyMetric });
     };
 

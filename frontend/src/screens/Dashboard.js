@@ -5,22 +5,11 @@ import Dropdown from "../components/Dropdown.js";
 import Card from "../components/Card.js";
 import Plot from "../components/Plot.js";
 
-const availableRegions = ["Thessaloniki", "Athens", "Patras"];
-const generateRandomData = (minimum = 0, maximum = 100) => {
-    return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
-};
-
-const formatNumber = (number, symbol = "", showSign = true) => {
-    if (!number) return "-";
-
-    let formattedNumber = (number > 0 && showSign) ? "+" : "";
-    formattedNumber += number;
-    formattedNumber += symbol;
-
-    return formattedNumber;
-};
+import { availableRegions } from "../utils/constants.js";
+import { generateRandomData, formatNumber } from "../utils/dashboard.js";
 
 const Dashboard = () => {
+
     const [selectedRegion, setSelectedRegion] = useState("Thessaloniki");
     const [data, setData] = useState({});
 
