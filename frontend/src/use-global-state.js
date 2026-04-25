@@ -31,6 +31,12 @@ export default create(persist(
 		setUser: (user) => setState({ user }),
 		defaultPageSize: 5,
 		setDefaultPageSize: (defaultPageSize) => setState({ defaultPageSize }),
+		defaultDashboard: "/dashboard1",
+		setDefaultDashboard: (defaultDashboard) => setState({ defaultDashboard }),
+		dateFormat: "MM/DD/YYYY",
+		setDateFormat: (dateFormat) => setState({ dateFormat }),
+		sidebarCollapsed: false,
+		setSidebarCollapsed: (sidebarCollapsed) => setState({ sidebarCollapsed }),
 		favorites: [],
 		toggleFavorite: (path) => setState((state) => {
 			if (state.favorites.includes(path)) {

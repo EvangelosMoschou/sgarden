@@ -180,7 +180,9 @@
     "zustand": "^4.3.3"
   },
   "overrides": {
-    "d3-color": "^3.1.0"
+    "d3-color": "^3.1.0",
+    "axios": "^1.7.4",
+    "fast-xml-parser": ">=4.2.4"
   },
   "devDependencies": {
     "@iamnapo/prettier-config": "^1.0.3",

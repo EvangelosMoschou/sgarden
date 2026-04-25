@@ -142,9 +142,194 @@ const Dashboard = () => {
         changePlotData(fromDate, toDate);
     }, [selectedRegion]);
 
+    
+    const [isCompareMode, setIsCompareMode] = useState(false);
+    
+    const [rightSelectedRegion, setRightSelectedRegion] = useState("Thessaloniki");
+    const [rightSelectedMetric, setRightSelectedMetric] = useState(null);
+    const [rightFromDate, setRightFromDate] = useState(lastYear);
+    const [rightToDate, setRightToDate] = useState(today);
+    const [rightData, setRightData] = useState({ keyMetric: { date: randomDate(), value: generateRandomDecimal(0, 100) }, revenue: [], expenses: [], profit: [], growthRate: [] });
+    const [rightMonths, setRightMonths] = useState([]);
+
+    const changeRightPlotData = (fromD, toD) => {
+        if (fromD && toD) {
+            const from = new Date(fromD);
+            const to = new Date(toD);
+            const months = [];
+            while (from <= to) {
+                months.push(from.toLocaleString("en-GB", { month: "short", year: "numeric" }));
+                from.setMonth(from.getMonth() + 1);
+            }
+            setRightMonths(months);
+
+            const revenue = months.map(() => generateRandomDecimal(0, 20));
+            const expenses = months.map(() => generateRandomDecimal(0, 30));
+            const profit = months.map(() => generateRandomDecimal(0, 40));
+            const growthRate = months.map(() => generateRandomDecimal(0, 50));
+            setRightData({ revenue, expenses, profit, growthRate, keyMetric: rightData.keyMetric });
+        }
+    };
+
+    const changeRightKeyMetricData = () => {
+        const keyMetric = { date: randomDate(), value: generateRandomDecimal(0, 100) };
+        setRightData((prevData) => ({ ...prevData, keyMetric }));
+    };
+
+    useEffect(() => {
+        changeRightPlotData(rightFromDate, rightToDate);
+    }, [rightFromDate, rightToDate]);
+
+    useEffect(() => {
+        changeRightKeyMetricData();
+    }, [rightSelectedMetric]);
+
+    useEffect(() => {
+        changeRightKeyMetricData();
+        changeRightPlotData(rightFromDate, rightToDate);
+    }, [rightSelectedRegion]);
+
+    const isRightFilterActive = !!rightSelectedMetric ||
+        rightFromDate.getTime() !== lastYear.getTime() ||
+        rightToDate.getTime() !== today.getTime();
+
+    const handleRightResetFilters = () => {
+        setRightSelectedMetric(null);
+        setRightFromDate(lastYear);
+        setRightToDate(today);
+    };
+
+    if (isCompareMode) {
+        // Calculate delta for revenue simply by subtracting sum or averages
+        const leftAvgRevenue = data.revenue.length ? data.revenue.reduce((a,b)=>a+b,0)/data.revenue.length : 0;
+        const rightAvgRevenue = rightData.revenue.length ? rightData.revenue.reduce((a,b)=>a+b,0)/rightData.revenue.length : 0;
+        const deltaRevenue = (leftAvgRevenue - rightAvgRevenue).toFixed(2);
+
+        return (
+            <Box>
+                <Box display="flex" alignItems="center" justifyContent="space-between" mb={2} mt={2}>
+                    <Box display="flex" alignItems="center">
+                        <Typography variant="h4" color="white.main" mr={2}>Compare Mode</Typography>
+                        <Box data-testid="compare-active-indicator" sx={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: 'success.main' }} />
+                    </Box>
+                    <Button data-testid="compare-close" variant="outlined" color="error" onClick={() => setIsCompareMode(false)}>Close Compare</Button>
+                </Box>
+                <Box data-testid="compare-delta-display" mb={2} p={2} bgcolor="greyDark.main" borderRadius={2}>
+                    <Typography color="white.main">Delta (Left vs Right):</Typography>
+                    <Typography color={deltaRevenue >= 0 ? "success.main" : "error.main"}>
+                        Average Revenue Difference: {deltaRevenue}%
+                    </Typography>
+                </Box>
+                <Grid container spacing={2}>
+                    <Grid item xs={6} data-testid="compare-panel-left">
+                        <Dashboard1Content 
+                            side="left"
+                            t={t}
+                            isFilterActive={isFilterActive}
+                            handleResetFilters={handleResetFilters}
+                            selectedRegion={selectedRegion}
+                            setSelectedRegion={setSelectedRegion}
+                            selectedMetric={selectedMetric}
+                            setSelectedMetric={setSelectedMetric}
+                            fromDate={fromDate}
+                            setFromDate={setFromDate}
+                            toDate={toDate}
+                            setToDate={setToDate}
+                            data={data}
+                            months={months}
+                            isCompareMode={isCompareMode}
+                            setIsCompareMode={setIsCompareMode}
+                            isFavorite={isFavorite}
+                            toggleFavorite={toggleFavorite}
+                        />
+                    </Grid>
+                    <Grid item xs={6} data-testid="compare-panel-right">
+                        <Dashboard1Content 
+                            side="right"
+                            t={t}
+                            isFilterActive={isRightFilterActive}
+                            handleResetFilters={handleRightResetFilters}
+                            selectedRegion={rightSelectedRegion}
+                            setSelectedRegion={setRightSelectedRegion}
+                            selectedMetric={rightSelectedMetric}
+                            setSelectedMetric={setRightSelectedMetric}
+                            fromDate={rightFromDate}
+                            setFromDate={setRightFromDate}
+                            toDate={rightToDate}
+                            setToDate={setRightToDate}
+                            data={rightData}
+                            months={rightMonths}
+                            isCompareMode={isCompareMode}
+                            setIsCompareMode={setIsCompareMode}
+                            isFavorite={isFavorite}
+                            toggleFavorite={toggleFavorite}
+                        />
+                    </Grid>
+                </Grid>
+            </Box>
+        );
+    }
+
+    return <Dashboard1Content 
+        side="none"
+        t={t}
+        isFilterActive={isFilterActive}
+        handleResetFilters={handleResetFilters}
+        selectedRegion={selectedRegion}
+        setSelectedRegion={setSelectedRegion}
+        selectedMetric={selectedMetric}
+        setSelectedMetric={setSelectedMetric}
+        fromDate={fromDate}
+        setFromDate={setFromDate}
+        toDate={toDate}
+        setToDate={setToDate}
+        data={data}
+        months={months}
+        isCompareMode={isCompareMode}
+        setIsCompareMode={setIsCompareMode}
+        isFavorite={isFavorite}
+        toggleFavorite={toggleFavorite}
+    />;
+
+};
+
+export default Dashboard;
+
+
+const Dashboard1Content = ({ 
+    side, 
+    t, 
+    isFilterActive, 
+    handleResetFilters, 
+    selectedRegion, 
+    setSelectedRegion, 
+    selectedMetric, 
+    setSelectedMetric, 
+    fromDate, 
+    setFromDate, 
+    toDate, 
+    setToDate, 
+    data, 
+    months,
+    isCompareMode,
+    setIsCompareMode,
+    isFavorite,
+    toggleFavorite
+}) => {
     return (
         <Grid container py={2} flexDirection="column">
             <Box display="flex" alignItems="center" mb={1}>
+                {!isCompareMode && (
+                    <Button 
+                        data-testid="compare-toggle" 
+                        variant="contained" 
+                        color="secondary" 
+                        onClick={() => setIsCompareMode(true)}
+                        style={{ marginRight: '15px' }}
+                    >
+                        Compare
+                    </Button>
+                )}
                 <Typography variant="h4" color="white.main" mr={1}>
                     {t("dashboard1.analytics")}
                 </Typography>
@@ -240,7 +425,7 @@ const Dashboard = () => {
                                     items={availableMetrics.map((metric) => ({ value: metric, text: metric }))}
                                     value={selectedMetric}
                                     onChange={(event) => setSelectedMetric(event.target.value)}
-                                    testId="filter-metric"
+                                    testId={side === "left" ? "compare-filter-left-metric" : side === "right" ? "compare-filter-right-metric" : "filter-metric"}
                                 />
                             </Box>
                         </Card>
@@ -267,7 +452,7 @@ const Dashboard = () => {
                                     background="greyDark"
                                     value={fromDate}
                                     onChange={(value) => setFromDate(value)}
-                                    testId="filter-date-from"
+                                    testId={side === "left" ? "compare-filter-left-date-from" : side === "right" ? "compare-filter-right-date-from" : "filter-date-from"}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6} display="flex" flexDirection="row" alignItems="center" justifyContent="flex-end">
@@ -282,7 +467,7 @@ const Dashboard = () => {
                                     background="greyDark"
                                     value={toDate}
                                     onChange={(value) => setToDate(value)}
-                                    testId="filter-date-to"
+                                    testId={side === "left" ? "compare-filter-left-date-to" : side === "right" ? "compare-filter-right-date-to" : "filter-date-to"}
                                 />
                             </Grid>
                         </Box>
@@ -586,5 +771,3 @@ const Dashboard = () => {
         </Grid>
     );
 };
-
-export default Dashboard;

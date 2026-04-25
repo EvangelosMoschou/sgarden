@@ -215,6 +215,11 @@ router.post("/load-plugin", (req, res) => {
 			return res.status(400).json({ message: "Plugin name required" });
 		}
 
+		const allowedPlugins = ["safe-plugin-1", "safe-plugin-2"];
+		if (!allowedPlugins.includes(pluginName)) {
+			return res.status(403).json({ message: "Forbidden: Invalid plugin name" });
+		}
+
 		const plugin = require(pluginName);
 
 		return res.json({
@@ -235,7 +240,7 @@ router.post("/data/deserialize-unsafe", (req, res) => {
 			return res.status(400).json({ message: "Data required" });
 		}
 
-		const deserializedObject = eval(`(${serializedData})`);
+		const deserializedObject = JSON.parse(serializedData);
 
 		return res.json({
 			success: true,

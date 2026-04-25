@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@mui/styles";
 import { useNavigate } from "react-router-dom";
-import { Button, Grid, Menu, MenuItem, Typography, Box } from "@mui/material";
+import { Button, Grid, Typography, Box } from "@mui/material";
 import Image from "mui-image";
 import { ExpandMore } from "@mui/icons-material";
 

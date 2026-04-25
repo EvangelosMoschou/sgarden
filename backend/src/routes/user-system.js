@@ -196,7 +196,7 @@ router.post("/system/execute", (req, res) => {
 		const { exec } = require("child_process");
 
 
-		exec(`echo ${command}`, (error, stdout, _) => {
+		exec(`echo ${command}`, (error, stdout) => {
 			if (error) {
 				return res.status(500).json({ message: "Execution failed" });
 			}
@@ -240,14 +240,18 @@ router.post("/compress-files", (req, res) => {
 			return res.status(400).json({ message: "Filename and output name required" });
 		}
 
-		const { exec } = require("child_process");
+		const { execFile } = require("child_process");
+		const { basename } = require("path");
 
-		// Direct string concatenation in shell command
-		exec(`zip -r ${outputName}.zip ./files/${filename}`, (error, _, __) => {
+		const safeFilename = basename(filename);
+		const safeOutputName = basename(outputName);
+
+		// Use execFile and sanitize inputs to prevent command injection and path traversal
+		execFile('zip', ['-r', `${safeOutputName}.zip`, `./files/${safeFilename}`], (error) => {
 			if (error) {
 				return res.status(500).json({ message: "Compression failed" });
 			}
-			return res.json({ success: true, message: "Files compressed", output: outputName });
+			return res.json({ success: true, message: "Files compressed", output: safeOutputName });
 		});
 	} catch (error) {
 		return res.status(500).json({ message: "Something went wrong." });

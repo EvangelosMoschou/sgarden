@@ -1,6 +1,6 @@
 import express from "express";
-import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, unlinkSync, renameSync } from "fs";
-import { join } from "path";
+import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from "fs";
+import { join, basename, resolve } from "path";
 import { logActivity } from "../utils/logger.js";
 
 const router = express.Router({ mergeParams: true });
@@ -53,7 +53,8 @@ router.get("/download-report", (req, res) => {
 			return res.status(400).json({ message: "Report name required" });
 		}
 
-		const reportPath = join("./reports", reportName);
+		const safeReportName = basename(reportName);
+		const reportPath = join("./reports", safeReportName);
 
 		if (existsSync(reportPath)) {
 			const content = readFileSync(reportPath);
@@ -76,7 +77,8 @@ router.get("/render-page", (req, res) => {
 			return res.status(400).json({ message: "Template name required" });
 		}
 
-		const templatePath = join("./templates", template);
+		const safeTemplate = basename(template);
+		const templatePath = join("./templates", safeTemplate);
 
 		if (existsSync(templatePath)) {
 			const templateContent = readFileSync(templatePath, 'utf8');
@@ -97,7 +99,8 @@ router.post("/upload-file", (req, res) => {
 			return res.status(400).json({ message: "Filename and content required" });
 		}
 
-		const uploadPath = join(destination || "./uploads", filename);
+		const safeFilename = basename(filename);
+		const uploadPath = join("./uploads", safeFilename);
 
 		writeFileSync(uploadPath, content);
 
@@ -119,11 +122,12 @@ router.get("/export-csv", (req, res) => {
 			return res.status(400).json({ message: "Data file required" });
 		}
 
-		if (!dataFile.endsWith('.csv')) {
+		const safeDataFile = basename(dataFile);
+		if (!safeDataFile.endsWith('.csv')) {
 			return res.status(400).json({ message: "Only CSV files allowed" });
 		}
 
-		const csvPath = join("./data", dataFile);
+		const csvPath = join("./data", safeDataFile);
 
 		if (existsSync(csvPath)) {
 			const csvData = readFileSync(csvPath, 'utf8');
@@ -147,7 +151,14 @@ router.get("/browse-files", (req, res) => {
 			return res.status(400).json({ message: "Directory required" });
 		}
 
-		const dirPath = join("./files", directory);
+		const baseDir = resolve("./files");
+		const targetDir = resolve(baseDir, directory);
+		
+		if (!targetDir.startsWith(baseDir)) {
+			return res.status(403).json({ message: "Forbidden: Path traversal detected" });
+		}
+		
+		const dirPath = targetDir;
 
 		if (existsSync(dirPath)) {
 			const files = readdirSync(dirPath);
@@ -181,11 +192,12 @@ router.get("/config/load", (req, res) => {
 			return res.status(400).json({ message: "Config file required" });
 		}
 
-		if (!configFile.endsWith('.json')) {
+		const safeConfigFile = basename(configFile);
+		if (!safeConfigFile.endsWith('.json')) {
 			return res.status(400).json({ message: "Only JSON config files allowed" });
 		}
 
-		const configPath = join("./config", configFile);
+		const configPath = join("./config", safeConfigFile);
 
 		if (existsSync(configPath)) {
 			const config = readFileSync(configPath, 'utf8');
@@ -212,7 +224,8 @@ router.post("/generate-custom-report", (req, res) => {
 			totalUsers: 100
 		};
 
-		const report = eval(`\`${templateString}\``);
+		// Safely replace template variables instead of using eval
+		const report = templateString.replace(/\$\{(\w+)\}/g, (_, key) => reportData[key] || "");
 
 		return res.json({ 
 			success: true, 

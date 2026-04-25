@@ -108,6 +108,8 @@ const Header = ({ isAuthenticated, mode, onToggleMode }) => {
 	const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
 	const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
 	const [languageAnchorEl, setLanguageAnchorEl] = useState(null);
+	const [searchOpen, setSearchOpen] = useState(false);
+
 	const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 	const isNotificationMenuOpen = Boolean(notificationAnchorEl);
 	const isLanguageMenuOpen = Boolean(languageAnchorEl);
@@ -115,6 +117,17 @@ const Header = ({ isAuthenticated, mode, onToggleMode }) => {
 	const markNotificationRead = useGlobalState((state) => state.markNotificationRead);
 	const markAllNotificationsRead = useGlobalState((state) => state.markAllNotificationsRead);
 	const clearNotifications = useGlobalState((state) => state.clearNotifications);
+
+	useEffect(() => {
+		const handleKeyDown = (e) => {
+			if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+				e.preventDefault();
+				setSearchOpen(true);
+			}
+		};
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, []);
 
 	const handleMobileMenuClose = () => setMobileMoreAnchorEl(null);
 	const handleMobileMenuOpen = (event) => setMobileMoreAnchorEl(event.currentTarget);
@@ -148,6 +161,14 @@ const Header = ({ isAuthenticated, mode, onToggleMode }) => {
 				navigate("/profile");
 			},
 			testId: "profile-nav-link",
+		},
+		{
+			icon: <SettingsIcon className={classes.svgIcon} sx={{ fill: "currentColor" }} />,
+			text: "Settings",
+			handler: () => {
+				navigate("/settings");
+			},
+			testId: "settings-nav-link",
 		},
 		{
 			icon: <LogoutIcon className={classes.svgIcon} />,
@@ -345,6 +366,7 @@ const Header = ({ isAuthenticated, mode, onToggleMode }) => {
 					{renderNotificationMenu}
 				</>
 			)}
+			<GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
 		</>
 	);
 };

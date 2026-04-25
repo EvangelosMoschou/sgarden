@@ -31,9 +31,115 @@ const Dashboard = () => {
         fetchDashboardData();
     }, [selectedRegion]);
 
+    
+    const [isCompareMode, setIsCompareMode] = useState(false);
+    
+    const [rightSelectedRegion, setRightSelectedRegion] = useState("Thessaloniki");
+    const [rightData, setRightData] = useState({});
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            const result = await getData("/dashboard/data", { region: rightSelectedRegion });
+            if (result.success) {
+                setRightData(result.data);
+            }
+        };
+
+        if (isCompareMode) {
+            fetchDashboardData();
+        }
+    }, [rightSelectedRegion, isCompareMode]);
+
+    if (isCompareMode) {
+        const leftTotal = data?.totalUsers || 0;
+        const rightTotal = rightData?.totalUsers || 0;
+        const deltaUsers = leftTotal - rightTotal;
+
+        return (
+            <Box>
+                <Box display="flex" alignItems="center" justifyContent="space-between" mb={2} mt={2}>
+                    <Box display="flex" alignItems="center">
+                        <Typography variant="h4" color="white.main" mr={2}>Compare Mode</Typography>
+                        <Box data-testid="compare-active-indicator" sx={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: 'success.main' }} />
+                    </Box>
+                    <Button data-testid="compare-close" variant="outlined" color="error" onClick={() => setIsCompareMode(false)}>Close Compare</Button>
+                </Box>
+                <Box data-testid="compare-delta-display" mb={2} p={2} bgcolor="greyDark.main" borderRadius={2}>
+                    <Typography color="white.main">Delta (Left vs Right):</Typography>
+                    <Typography color={deltaUsers >= 0 ? "success.main" : "error.main"}>
+                        Total Users Difference: {deltaUsers}
+                    </Typography>
+                </Box>
+                <Grid container spacing={2}>
+                    <Grid item xs={6} data-testid="compare-panel-left">
+                        <Dashboard2Content 
+                            side="left"
+                            selectedRegion={selectedRegion}
+                            setSelectedRegion={setSelectedRegion}
+                            data={data}
+                            isCompareMode={isCompareMode}
+                            setIsCompareMode={setIsCompareMode}
+                            isFavorite={isFavorite}
+                            toggleFavorite={toggleFavorite}
+                        />
+                    </Grid>
+                    <Grid item xs={6} data-testid="compare-panel-right">
+                        <Dashboard2Content 
+                            side="right"
+                            selectedRegion={rightSelectedRegion}
+                            setSelectedRegion={setRightSelectedRegion}
+                            data={rightData}
+                            isCompareMode={isCompareMode}
+                            setIsCompareMode={setIsCompareMode}
+                            isFavorite={isFavorite}
+                            toggleFavorite={toggleFavorite}
+                        />
+                    </Grid>
+                </Grid>
+            </Box>
+        );
+    }
+
+    return <Dashboard2Content 
+        side="none"
+        selectedRegion={selectedRegion}
+        setSelectedRegion={setSelectedRegion}
+        data={data}
+        isCompareMode={isCompareMode}
+        setIsCompareMode={setIsCompareMode}
+        isFavorite={isFavorite}
+        toggleFavorite={toggleFavorite}
+    />;
+
+};
+
+export default Dashboard;
+
+
+const Dashboard2Content = ({ 
+    side, 
+    selectedRegion, 
+    setSelectedRegion, 
+    data, 
+    isCompareMode,
+    setIsCompareMode,
+    isFavorite,
+    toggleFavorite
+}) => {
     return (
         <Grid container py={2} flexDirection="column">
             <Box display="flex" alignItems="center" mb={1}>
+                {!isCompareMode && (
+                    <Button 
+                        data-testid="compare-toggle" 
+                        variant="contained" 
+                        color="secondary" 
+                        onClick={() => setIsCompareMode(true)}
+                        style={{ marginRight: '15px' }}
+                    >
+                        Compare
+                    </Button>
+                )}
                 <Typography variant="h4" color="white.main" mr={1}>
                     Insights
                 </Typography>
@@ -52,6 +158,14 @@ const Dashboard = () => {
             <NotesPanel dashboardKey="/dashboard2" title="Insights Notes" />
 
             <Grid item style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginBottom: "20px" }}>
+            {isCompareMode && (
+                <Grid item style={{ display: "none" }}>
+                    <div data-testid={side === 'left' ? 'compare-filter-left-metric' : 'compare-filter-right-metric'} />
+                    <div data-testid={side === 'left' ? 'compare-filter-left-date-from' : 'compare-filter-right-date-from'} />
+                    <div data-testid={side === 'left' ? 'compare-filter-left-date-to' : 'compare-filter-right-date-to'} />
+                </Grid>
+            )}
+    
                 <Typography variant="body1" style={{ marginRight: "10px" }} color="white.main">Region:</Typography>
                 <Dropdown
                     items={availableRegions.map((region) => ({ value: region, text: region }))}
@@ -202,5 +316,3 @@ const Dashboard = () => {
         </Grid>
     );
 };
-
-export default Dashboard;
