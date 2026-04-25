@@ -177,6 +177,7 @@ const Dropdown = ({
 	items = [],
 	value,
 	onChange,
+	testId,
 }) => {
 	const classes = useStyles({ background });
 	return (
@@ -195,6 +196,7 @@ const Dropdown = ({
 			sx={{ ">.MuiOutlinedInput-notchedOutline": { border: (filled) ? "none" : "1px solid", borderColor: `${background}.main` } }}
 			renderValue={(selected) => (selected || placeholder)}
 			onChange={onChange}
+			inputProps={{ "data-testid": testId }}
 		>
 			{items.map((it) => (
 				<MenuItem key={it.text} value={it.value}>{it.text}</MenuItem>

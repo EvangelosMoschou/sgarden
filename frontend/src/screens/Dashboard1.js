@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Grid, Typography, Box, IconButton } from "@mui/material";
+import { Grid, Typography, Box, IconButton, Button } from "@mui/material";
 import { Star, StarBorder } from "@mui/icons-material";
+import { useSearchParams } from "react-router-dom";
 import Dropdown from "../components/Dropdown.js";
 import Card from "../components/Card.js";
 import Plot from "../components/Plot.js";
@@ -18,10 +19,86 @@ const Dashboard = () => {
     const toggleFavorite = useGlobalState((state) => state.toggleFavorite);
     const isFavorite = favorites.includes("/dashboard1");
 
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const lastYear = new Date(today);
+    lastYear.setFullYear(today.getFullYear() - 1);
+
     const [selectedRegion, setSelectedRegion] = useState("Thessaloniki");
-    const [selectedMetric, setSelectedMetric] = useState(null);
-    const [fromDate, setFromDate] = useState(new Date(new Date().setFullYear(new Date().getFullYear() - 1)));
-    const [toDate, setToDate] = useState(new Date());
+    const [selectedMetric, setSelectedMetric] = useState(() => {
+        return searchParams.get("metric") || localStorage.getItem("dashboard1_metric") || null;
+    });
+    const [fromDate, setFromDate] = useState(() => {
+        const fromUrl = searchParams.get("from");
+        if (fromUrl) return new Date(fromUrl);
+        const fromLocal = localStorage.getItem("dashboard1_from");
+        if (fromLocal) return new Date(fromLocal);
+        return lastYear;
+    });
+    const [toDate, setToDate] = useState(() => {
+        const toUrl = searchParams.get("to");
+        if (toUrl) return new Date(toUrl);
+        const toLocal = localStorage.getItem("dashboard1_to");
+        if (toLocal) return new Date(toLocal);
+        return today;
+    });
+
+    const isFilterActive = !!selectedMetric || 
+        fromDate.getTime() !== lastYear.getTime() || 
+        toDate.getTime() !== today.getTime();
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        let changed = false;
+
+        if (selectedMetric) {
+            if (params.get("metric") !== selectedMetric) {
+                params.set("metric", selectedMetric);
+                changed = true;
+            }
+            localStorage.setItem("dashboard1_metric", selectedMetric);
+        } else {
+            if (params.has("metric")) {
+                params.delete("metric");
+                changed = true;
+            }
+            localStorage.removeItem("dashboard1_metric");
+        }
+
+        if (fromDate) {
+            const fromIso = fromDate.toISOString();
+            if (params.get("from") !== fromIso) {
+                params.set("from", fromIso);
+                changed = true;
+            }
+            localStorage.setItem("dashboard1_from", fromIso);
+        }
+
+        if (toDate) {
+            const toIso = toDate.toISOString();
+            if (params.get("to") !== toIso) {
+                params.set("to", toIso);
+                changed = true;
+            }
+            localStorage.setItem("dashboard1_to", toIso);
+        }
+
+        if (changed) {
+            setSearchParams(params, { replace: true });
+        }
+    }, [selectedMetric, fromDate, toDate, setSearchParams]);
+
+    const handleResetFilters = () => {
+        setSelectedMetric(null);
+        setFromDate(lastYear);
+        setToDate(today);
+        localStorage.removeItem("dashboard1_metric");
+        localStorage.removeItem("dashboard1_from");
+        localStorage.removeItem("dashboard1_to");
+    };
+
     const [months, setMonths] = useState([]);
     const [data, setData] = useState({ keyMetric: { date: randomDate(), value: generateRandomDecimal(0, 100) }, revenue: [], expenses: [], profit: [], growthRate: [] });
 
@@ -46,7 +123,7 @@ const Dashboard = () => {
 
     const changeKeyMetricData = () => {
         const keyMetric = { date: randomDate(), value: generateRandomDecimal(0, 100) };
-        setData({ ...data, keyMetric });
+        setData((prevData) => ({ ...prevData, keyMetric }));
     };
 
     useEffect(() => {
@@ -81,13 +158,35 @@ const Dashboard = () => {
                 </IconButton>
             </Box>
 
-            <Grid item style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginBottom: "20px" }}>
-                <Typography variant="body1" style={{ marginRight: "10px" }} color="white.main">Region:</Typography>
-                <Dropdown
-                    items={availableRegions.map((region) => ({ value: region, text: region }))}
-                    value={selectedRegion}
-                    onChange={(event) => setSelectedRegion(event.target.value)}
-                />
+            <Grid item style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginBottom: "20px", gap: "15px" }}>
+                {isFilterActive && (
+                    <Box
+                        data-testid="filter-active-indicator"
+                        sx={{
+                            width: 10,
+                            height: 10,
+                            borderRadius: "50%",
+                            backgroundColor: "secondary.main",
+                        }}
+                    />
+                )}
+                <Button
+                    variant="outlined"
+                    color="secondary"
+                    size="small"
+                    onClick={handleResetFilters}
+                    data-testid="filter-reset-button"
+                >
+                    Reset Filters
+                </Button>
+                <Box display="flex" alignItems="center">
+                    <Typography variant="body1" style={{ marginRight: "10px" }} color="white.main">Region:</Typography>
+                    <Dropdown
+                        items={availableRegions.map((region) => ({ value: region, text: region }))}
+                        value={selectedRegion}
+                        onChange={(event) => setSelectedRegion(event.target.value)}
+                    />
+                </Box>
             </Grid>
 
             <Grid container spacing={2}>
@@ -137,6 +236,7 @@ const Dashboard = () => {
                                         items={availableMetrics.map((metric) => ({ value: metric, text: metric }))}
                                         value={selectedMetric}
                                         onChange={(event) => setSelectedMetric(event.target.value)}
+                                        testId="filter-metric"
                                     />
                                 </Box>
                             </Card>
@@ -163,6 +263,7 @@ const Dashboard = () => {
                                     background="greyDark"
                                     value={fromDate}
                                     onChange={(value) => setFromDate(value)}
+                                    testId="filter-date-from"
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6} display="flex" flexDirection="row" alignItems="center" justifyContent="flex-end">
@@ -177,6 +278,7 @@ const Dashboard = () => {
                                     background="greyDark"
                                     value={toDate}
                                     onChange={(value) => setToDate(value)}
+                                    testId="filter-date-to"
                                 />
                             </Grid>
                         </Box>
