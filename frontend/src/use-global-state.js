@@ -60,6 +60,61 @@ export default create(persist(
 			notifications: state.notifications.map((notification) => ({ ...notification, read: true })),
 		})),
 		clearNotifications: () => setState({ notifications: [] }),
+		dashboardNotes: {},
+		addDashboardNote: (dashboardKey, content) => setState((state) => {
+			const dashboardNotes = state.dashboardNotes || {};
+			const timestamp = new Date().toISOString();
+
+			return {
+				dashboardNotes: {
+					...dashboardNotes,
+					[dashboardKey]: [
+						{
+							id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+							content,
+							pinned: false,
+							createdAt: timestamp,
+							updatedAt: timestamp,
+						},
+						...(dashboardNotes[dashboardKey] || []),
+					],
+				},
+			};
+		}),
+		updateDashboardNote: (dashboardKey, noteId, updates) => setState((state) => {
+			const dashboardNotes = state.dashboardNotes || {};
+
+			return {
+				dashboardNotes: {
+					...dashboardNotes,
+					[dashboardKey]: (dashboardNotes[dashboardKey] || []).map((note) => (
+						note.id === noteId ? { ...note, ...updates, updatedAt: new Date().toISOString() } : note
+					)),
+				},
+			};
+		}),
+		deleteDashboardNote: (dashboardKey, noteId) => setState((state) => {
+			const dashboardNotes = state.dashboardNotes || {};
+
+			return {
+				dashboardNotes: {
+					...dashboardNotes,
+					[dashboardKey]: (dashboardNotes[dashboardKey] || []).filter((note) => note.id !== noteId),
+				},
+			};
+		}),
+		toggleDashboardNotePin: (dashboardKey, noteId) => setState((state) => {
+			const dashboardNotes = state.dashboardNotes || {};
+
+			return {
+				dashboardNotes: {
+					...dashboardNotes,
+					[dashboardKey]: (dashboardNotes[dashboardKey] || []).map((note) => (
+						note.id === noteId ? { ...note, pinned: !note.pinned, updatedAt: new Date().toISOString() } : note
+					)),
+				},
+			};
+		}),
 	}),
 	{
 		name: "sgarden",

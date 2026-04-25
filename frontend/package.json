@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "i18next": "^26.0.8",
+    "papaparse": "^5.5.3",
     "react-i18next": "^17.0.4"
   }
 }

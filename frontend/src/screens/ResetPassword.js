@@ -67,44 +67,34 @@ const ResetPassword = () => {
 		setIsSubmitting(false);
 	};
 
+	const getPasswordAdornment = () => ({
+		endAdornment: (
+			<InputAdornment position="start">
+				<IconButton
+					aria-label="toggle password visibility"
+					tabIndex={-1}
+					onClick={handleShowPassword}
+				>
+					{showPassword ? <Visibility /> : <VisibilityOff />}
+				</IconButton>
+			</InputAdornment>
+		),
+	});
+
 	const formContent = [
 		{
 			customType: "input",
 			id: "password",
 			type: showPassword ? "text" : "password",
 			placeholder: "New Password",
-			inputProps: {
-				endAdornment: (
-					<InputAdornment position="start">
-						<IconButton
-							aria-label="toggle password visibility"
-							tabIndex={-1}
-							onClick={handleShowPassword}
-						>
-							{showPassword ? <Visibility /> : <VisibilityOff />}
-						</IconButton>
-					</InputAdornment>
-				),
-			},
+			inputProps: getPasswordAdornment(),
 		},
 		{
 			customType: "input",
 			id: "confirmPassword",
 			type: showPassword ? "text" : "password",
 			placeholder: "Re-type New Password",
-			inputProps: {
-				endAdornment: (
-					<InputAdornment position="start">
-						<IconButton
-							aria-label="toggle password visibility"
-							tabIndex={-1}
-							onClick={handleShowPassword}
-						>
-							{showPassword ? <Visibility /> : <VisibilityOff />}
-						</IconButton>
-					</InputAdornment>
-				),
-			},
+			inputProps: getPasswordAdornment(),
 		},
 		{
 			customType: "button",

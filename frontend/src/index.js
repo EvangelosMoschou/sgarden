@@ -112,6 +112,7 @@ const App = () => {
 								<Route path="dashboard1" element={<Protected c={<Dashboard1 />} />} />
 								<Route path="dashboard2" element={<Protected c={<Dashboard2 />} />} />
 								<Route path="profile" element={<Protected c={<Profile />} />} />
+								<Route path="import" element={<Protected c={<Import />} />} />
 								<Route path="map" element={<Protected c={<Map />} />} />
 								<Route path="*" element={<NotFound />} />
 							</Routes>

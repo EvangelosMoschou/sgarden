@@ -5,6 +5,7 @@ import { Star, StarBorder } from "@mui/icons-material";
 import Dropdown from "../components/Dropdown.js";
 import Card from "../components/Card.js";
 import Plot from "../components/Plot.js";
+import NotesPanel from "../components/NotesPanel.js";
 
 import { getData } from "../api/index.js";
 
@@ -48,6 +49,7 @@ const Dashboard = () => {
                     )}
                 </IconButton>
             </Box>
+            <NotesPanel dashboardKey="/dashboard2" title="Insights Notes" />
 
             <Grid item style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginBottom: "20px" }}>
                 <Typography variant="body1" style={{ marginRight: "10px" }} color="white.main">Region:</Typography>

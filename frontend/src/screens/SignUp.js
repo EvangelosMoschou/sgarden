@@ -1,4 +1,5 @@
 import { memo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Grid, Typography, Link, InputAdornment } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { useNavigate } from "react-router-dom";
@@ -36,6 +37,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SignUp = () => {
+	const { t } = useTranslation();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const classes = useStyles();
 	const { success, error } = useSnackbar();
@@ -66,80 +68,64 @@ const SignUp = () => {
 		setIsSubmitting(false);
 	};
 
+	const getIconAdornment = (Icon) => ({
+		endAdornment: (
+			<InputAdornment position="start">
+				<IconButton disabled>
+					<Icon />
+				</IconButton>
+			</InputAdornment>
+		),
+	});
+
+	const getPasswordAdornment = () => ({
+		endAdornment: (
+			<InputAdornment position="start">
+				<IconButton
+					aria-label={t("signUp.togglePasswordVisibility")}
+					tabIndex={-1}
+					onClick={handleShowPassword}
+				>
+					{showPassword ? <Visibility /> : <VisibilityOff />}
+				</IconButton>
+			</InputAdornment>
+		),
+	});
+
 	const formContent = [
 		{
 			customType: "input",
 			id: "username",
 			type: "text",
-			placeholder: "Username",
-			inputProps: {
-				endAdornment: (
-					<InputAdornment position="start">
-						<IconButton disabled>
-							<AccountCircle />
-						</IconButton>
-					</InputAdornment>
-				),
-			},
+			placeholder: t("signUp.username"),
+			inputProps: getIconAdornment(AccountCircle),
 		},
 		{
 			customType: "input",
 			id: "email",
 			type: "email",
-			placeholder: "E-mail",
-			inputProps: {
-				endAdornment: (
-					<InputAdornment position="start">
-						<IconButton disabled>
-							<EmailIcon />
-						</IconButton>
-					</InputAdornment>
-				),
-			},
+			placeholder: t("signUp.email"),
+			inputProps: getIconAdornment(EmailIcon),
 		},
 		{
 			customType: "input",
 			id: "password",
 			type: showPassword ? "text" : "password",
-			placeholder: "Password",
-			inputProps: {
-				endAdornment: (
-					<InputAdornment position="start">
-						<IconButton
-							aria-label="toggle password visibility"
-							tabIndex={-1}
-							onClick={handleShowPassword}
-						>
-							{showPassword ? <Visibility /> : <VisibilityOff />}
-						</IconButton>
-					</InputAdornment>
-				),
-			},
+			placeholder: t("signUp.password"),
+			inputProps: getPasswordAdornment(),
 		},
 		{
 			customType: "input",
 			id: "confirmPassword",
 			type: showPassword ? "text" : "password",
-			placeholder: "Re-type Password",
-			inputProps: {
-				endAdornment: (
-					<InputAdornment position="start">
-						<IconButton
-							aria-label="toggle password visibility"
-							tabIndex={-1}
-							onClick={handleShowPassword}
-						>
-							{showPassword ? <Visibility /> : <VisibilityOff />}
-						</IconButton>
-					</InputAdornment>
-				),
-			},
+			placeholder: t("signUp.retypePassword"),
+			inputProps: getPasswordAdornment(),
 		},
 		{
 			customType: "button",
 			id: "submit",
 			type: "submit",
-			text: "Sign Up",
+			text: t("signUp.signUpBtn"),
 			buttonColor: "third",
 		},
 	];
@@ -150,17 +136,17 @@ const SignUp = () => {
 			<Grid container direction="row" justifyContent="center" align="center" className={classes.root}>
 				<Grid item container direction="column" justifyContent="center" align="center" sm={5} xs={12} sx={{ "> .MuiGrid-item": { p: 1 } }}>
 					<Grid item mt={2}>
-						<Typography variant="h4" className={classes.title}>{"Sign Up"}</Typography>
-						<Typography variant="h5" className={classes.subtitle}>{"to SGarden Platform"}</Typography>
+						<Typography variant="h4" className={classes.title}>{t("signUp.title")}</Typography>
+						<Typography variant="h5" className={classes.subtitle}>{t("signUp.subtitle")}</Typography>
 					</Grid>
 					<Grid item container direction="column" justifyContent="center" alignItems="center">
 						<Form content={formContent} validationSchema="signUpSchema" onSubmit={submitHandler} />
 					</Grid>
 					<Grid item container direction="column" justifyContent="center" alignItems="space-between">
 						<Grid item>
-							<Typography variant="h7" color="white.main">{"Otherwise, "}</Typography>
+							<Typography variant="h7" color="white.main">{t("signUp.otherwise")}</Typography>
 							<Typography variant="h7" className={classes.subtitle}>
-								<Link color="inherit" underline="none" href="/">{"Sign In"}</Link>
+								<Link color="inherit" underline="none" href="/">{t("signUp.signInLink")}</Link>
 							</Typography>
 						</Grid>
 					</Grid>

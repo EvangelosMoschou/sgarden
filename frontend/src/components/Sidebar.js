@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { makeStyles } from "@mui/styles";
 import { useNavigate } from "react-router-dom";
 import { Button, Grid, Menu, MenuItem, Typography, Box } from "@mui/material";
@@ -68,6 +69,7 @@ const ButtonSimple = ({ text, icon, handler, ind, testid }) => (
 );
 
 const Sidebar = ({ isSmall: sidebarIsSmall }) => {
+	const { t } = useTranslation();
 	const [isSmall, setIsSmall] = useState(false);
 	const navigate = useNavigate();
 	const classes = useStyles();
@@ -79,13 +81,13 @@ const Sidebar = ({ isSmall: sidebarIsSmall }) => {
 
 	const buttons = [
 		...(isAdmin ? [{
-			text: "Users",
+			text: t("sidebar.users"),
 			handler: () => {
 				navigate("/users");
 			},
 			path: "/users",
 		}, {
-			text: "Activity Log",
+			text: t("sidebar.activityLog"),
 			handler: () => {
 				navigate("/activity");
 			},
@@ -93,25 +95,33 @@ const Sidebar = ({ isSmall: sidebarIsSmall }) => {
 			testid: "sidebar-activity-link"
 		}] : []),
 		{
-			text: "Overview",
+			text: t("sidebar.overview"),
 			handler: () => {
 				navigate("/dashboard");
 			},
 			path: "/dashboard",
 		},
 		{
-			text: "Analytics",
+			text: t("sidebar.analytics"),
 			handler: () => {
 				navigate("/dashboard1");
 			},
 			path: "/dashboard1",
 		},
 		{
-			text: "Insights",
+			text: t("sidebar.insights"),
 			handler: () => {
 				navigate("/dashboard2");
 			},
 			path: "/dashboard2",
+		},
+		{
+			text: "Import",
+			handler: () => {
+				navigate("/import");
+			},
+			path: "/import",
+			testid: "sidebar-import-link"
 		},
 	];
 
@@ -132,7 +142,7 @@ const Sidebar = ({ isSmall: sidebarIsSmall }) => {
 				<Box data-testid="sidebar-favorites-section" mb={2}>
 					{!isSmall && (
 						<Typography variant="overline" color="gray" align="left" display="block" pl={2}>
-							Favorites
+							{t("sidebar.favorites")}
 						</Typography>
 					)}
 					{!isSmall && favoriteButtons.map((button) => (

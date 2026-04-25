@@ -1,4 +1,5 @@
 import { useEffect, memo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Grid, Typography, Link, Divider, InputAdornment } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -35,6 +36,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SignIn = () => {
+	const { t } = useTranslation();
 	const { state } = useLocation();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const classes = useStyles();
@@ -76,7 +78,7 @@ const SignIn = () => {
 			customType: "input",
 			id: "username",
 			type: "text",
-			placeholder: "Username",
+			placeholder: t("signIn.username"),
 			inputProps: {
 				endAdornment: (
 					<InputAdornment position="start">
@@ -91,12 +93,12 @@ const SignIn = () => {
 			customType: "input",
 			id: "password",
 			type: showPassword ? "text" : "password",
-			placeholder: "Password",
+			placeholder: t("signIn.password"),
 			inputProps: {
 				endAdornment: (
 					<InputAdornment position="start">
 						<IconButton
-							aria-label="toggle password visibility"
+							aria-label={t("signIn.togglePasswordVisibility")}
 							tabIndex={-1}
 							onClick={handleShowPassword}
 						>
@@ -110,7 +112,7 @@ const SignIn = () => {
 			customType: "button",
 			id: "submit",
 			type: "submit",
-			text: "Sign In",
+			text: t("signIn.signInBtn"),
 			buttonColor: "third",
 		},
 	];
@@ -121,26 +123,26 @@ const SignIn = () => {
 			<Grid container direction="row" justifyContent="center" align="center" className={classes.root}>
 				<Grid item container direction="column" justifyContent="center" align="center" sm={5} xs={12} sx={{ "> .MuiGrid-item": { p: 1 } }}>
 					<Grid item mt={2}>
-						<Typography variant="h3" className={classes.title}>{"WELCOME"}</Typography>
-						<Typography variant="h5" className={classes.subtitle}>{"to SGarden Platform"}</Typography>
+						<Typography variant="h3" className={classes.title}>{t("signIn.welcome")}</Typography>
+						<Typography variant="h5" className={classes.subtitle}>{t("signIn.subtitle")}</Typography>
 					</Grid>
 					<Grid item container direction="column" justifyContent="center" alignItems="center">
 						<Form content={formContent} validationSchema="authenticationSchema" toResetForm={false} onSubmit={submitHandler} />
 					</Grid>
 					<Grid item container direction="column" justifyContent="center" alignItems="space-between">
 						<Grid item>
-							<Typography variant="h7" color="white.main">{"Forgot Password? "}</Typography>
+							<Typography variant="h7" color="white.main">{t("signIn.forgotPassword")}</Typography>
 							<Typography variant="h7" className={classes.subtitle}>
-								<Link color="inherit" underline="none" href="forgot-password">{"Click Here"}</Link>
+								<Link color="inherit" underline="none" href="forgot-password">{t("signIn.clickHere")}</Link>
 							</Typography>
 						</Grid>
 						<Grid item>
 							<Divider style={{ width: "280px", margin: "0px", marginTop: "5px", marginBottom: "5px" }} />
 						</Grid>
 						<Grid item>
-							<Typography variant="h7" color="white.main">{"Don't have an account? "}</Typography>
+							<Typography variant="h7" color="white.main">{t("signIn.dontHaveAccount")}</Typography>
 							<Typography variant="h7" className={classes.subtitle}>
-								<Link color="inherit" underline="none" href="sign-up">{"Sign Up Here"}</Link>
+								<Link color="inherit" underline="none" href="sign-up">{t("signIn.signUpHere")}</Link>
 							</Typography>
 						</Grid>
 					</Grid>

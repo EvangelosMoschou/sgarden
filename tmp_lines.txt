@@ -1,0 +1,112 @@
+1 import { memo, useState } from "react";
+2 import { Grid, Typography, Link, InputAdornment } from "@mui/material";
+3 import { makeStyles } from "@mui/styles";
+4 import { useNavigate } from "react-router-dom";
+5 import IconButton from "@mui/material/IconButton";
+6 import AccountCircle from "@mui/icons-material/AccountCircle";
+7 
+8 import { useSnackbar } from "../utils/index.js";
+9 import Spinner from "../components/Spinner.js";
+10 import background from "../assets/images/background.jpg";
+11 import { forgotPassword } from "../api/index.js";
+12 import Form from "../components/Form.js";
+13 
+14 const useStyles = makeStyles((theme) => ({
+15 	root: {
+16 		overflow: "hidden",
+17 		width: "100vw",
+18 		height: "100%",
+19 		backgroundImage: `url(${background})`,
+20 		backgroundPosition: "center",
+21 		backgroundSize: "cover",
+22 	},
+23 	title: {
+24 		color: theme.palette.common.white,
+25 		letterSpacing: theme.spacing(0.1),
+26 		maxWidth: "300px",
+27 	},
+28 	subtitle: {
+29 		color: theme.palette.third.main,
+30 		letterSpacing: theme.spacing(0.1),
+31 		maxWidth: "300px",
+32 	},
+33 }));
+34 
+35 const ForgotPassword = () => {
+36 	const [isSubmitting, setIsSubmitting] = useState(false);
+37 	const classes = useStyles();
+38 	const { success, error } = useSnackbar();
+39 	const navigate = useNavigate();
+40 
+41 	const submitHandler = async (values) => {
+42 		setIsSubmitting(true);
+43 
+44 		try {
+45 			const { success: successCode, message } = await forgotPassword(values.username);
+46 
+47 			if (successCode) {
+48 				success(message);
+49 				navigate("/");
+50 			} else {
+51 				error(message);
+52 			}
+53 		} catch (error_) {
+54 			console.log(error_);
+55 		}
+56 
+57 		setIsSubmitting(false);
+58 	};
+59 
+60 	const formContent = [
+61 		{
+62 			customType: "input",
+63 			id: "username",
+64 			type: "text",
+65 			placeholder: "Username",
+66 			inputProps: {
+67 				endAdornment: (
+68 					<InputAdornment position="start">
+69 						<IconButton disabled>
+70 							<AccountCircle />
+71 						</IconButton>
+72 					</InputAdornment>
+73 				),
+74 			},
+75 		},
+76 		{
+77 			customType: "button",
+78 			id: "submit",
+79 			type: "submit",
+80 			text: "Reset Password",
+81 			buttonColor: "third",
+82 		},
+83 	];
+84 
+85 	return (
+86 		<>
+87 			<Spinner open={isSubmitting} />
+88 			<Grid container direction="row" justifyContent="center" align="center" className={classes.root}>
+89 				<Grid item container direction="column" justifyContent="center" align="center" sm={5} xs={12} sx={{ "> .MuiGrid-item": { p: 1 } }}>
+90 					<Grid item mt={2}>
+91 						<Typography variant="h4" className={classes.title}>{"Trouble signing in?"}</Typography>
+92 						<Typography variant="h6" className={classes.subtitle}>{"Please enter your username and you will receive a link to create a new password."}</Typography>
+93 					</Grid>
+94 					<Grid item container direction="column" justifyContent="center" alignItems="center">
+95 						<Form content={formContent} validationSchema="forgotPasswordSchema" onSubmit={submitHandler} />
+96 					</Grid>
+97 					<Grid item container direction="column" justifyContent="center" alignItems="space-between">
+98 						<Grid item>
+99 							<Typography variant="h7" color="white.main">{"Otherwise, "}</Typography>
+100 							<Typography variant="h7" className={classes.subtitle}>
+101 								<Link color="inherit" underline="none" href="/">{"Sign In"}</Link>
+102 							</Typography>
+103 						</Grid>
+104 					</Grid>
+105 				</Grid>
+106 				<Grid item sm={7} />
+107 			</Grid>
+108 		</>
+109 	);
+110 };
+111 
+112 export default memo(ForgotPassword);

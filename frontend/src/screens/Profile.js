@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Grid, Typography, Box, Button, TextField, CircularProgress } from "@mui/material";
 import Card from "../components/Card.js";
 import api from "../api/index.js";
 
 const Profile = () => {
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(true);
     const [userId, setUserId] = useState(null);
     const [profile, setProfile] = useState({
@@ -67,12 +69,12 @@ const Profile = () => {
             if (response.success) {
                 setProfile({ ...profile, ...editForm });
                 setIsEditing(false);
-                setMessage({ type: "success", text: "Profile updated successfully." });
+                setMessage({ type: "success", text: t("profile.updateSuccess") });
             } else {
-                setMessage({ type: "error", text: response.message || "Failed to update profile." });
+                setMessage({ type: "error", text: response.message || t("profile.updateFailed") });
             }
         } catch (error) {
-            setMessage({ type: "error", text: "An error occurred while updating profile." });
+            setMessage({ type: "error", text: t("profile.updateError") });
         }
     };
 
@@ -81,7 +83,7 @@ const Profile = () => {
             setMessage({ type: "", text: "" });
             
             if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-                setMessage({ type: "error", text: "New passwords do not match." });
+                setMessage({ type: "error", text: t("profile.passwordMismatch") });
                 return;
             }
 
@@ -92,12 +94,12 @@ const Profile = () => {
 
             if (response.success) {
                 setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
-                setMessage({ type: "success", text: "Password updated successfully." });
+                setMessage({ type: "success", text: t("profile.passwordSuccess") });
             } else {
-                setMessage({ type: "error", text: response.message || "Failed to update password." });
+                setMessage({ type: "error", text: response.message || t("profile.passwordFailed") });
             }
         } catch (error) {
-            setMessage({ type: "error", text: "An error occurred while updating password." });
+            setMessage({ type: "error", text: t("profile.passwordError") });
         }
     };
 
@@ -112,7 +114,7 @@ const Profile = () => {
     return (
         <Grid container py={2} flexDirection="column" data-testid="profile-page">
             <Typography variant="h4" gutterBottom color="white.main">
-                User Profile
+                {t("profile.title")}
             </Typography>
 
             {message.text && (
@@ -123,10 +125,10 @@ const Profile = () => {
 
             <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
-                    <Card title="Account Details">
+                    <Card title={t("profile.accountDetails")}>
                         <Box display="flex" flexDirection="column" gap={2}>
                             <Box>
-                                <Typography variant="subtitle2" color="primary.main">Username</Typography>
+                                <Typography variant="subtitle2" color="primary.main">{t("profile.username")}</Typography>
                                 {isEditing ? (
                                     <TextField
                                         size="small"
@@ -141,7 +143,7 @@ const Profile = () => {
                             </Box>
 
                             <Box>
-                                <Typography variant="subtitle2" color="primary.main">Email</Typography>
+                                <Typography variant="subtitle2" color="primary.main">{t("profile.email")}</Typography>
                                 {isEditing ? (
                                     <TextField
                                         size="small"
@@ -156,19 +158,19 @@ const Profile = () => {
                             </Box>
 
                             <Box>
-                                <Typography variant="subtitle2" color="primary.main">Role</Typography>
+                                <Typography variant="subtitle2" color="primary.main">{t("profile.role")}</Typography>
                                 <Typography data-testid="profile-role" sx={{ textTransform: "capitalize" }}>{profile.role}</Typography>
                             </Box>
 
                             <Box>
-                                <Typography variant="subtitle2" color="primary.main">Account Created</Typography>
+                                <Typography variant="subtitle2" color="primary.main">{t("profile.accountCreated")}</Typography>
                                 <Typography data-testid="profile-created-at">
                                     {profile.createdAt ? new Date(profile.createdAt).toLocaleDateString() : "N/A"}
                                 </Typography>
                             </Box>
 
                             <Box>
-                                <Typography variant="subtitle2" color="primary.main">Last Active</Typography>
+                                <Typography variant="subtitle2" color="primary.main">{t("profile.lastActive")}</Typography>
                                 <Typography data-testid="profile-last-active">
                                     {profile.lastActive ? new Date(profile.lastActive).toLocaleDateString() : "N/A"}
                                 </Typography>
@@ -177,16 +179,13 @@ const Profile = () => {
                             <Box display="flex" gap={2} mt={2}>
                                 {isEditing ? (
                                     <>
-                                        <Button variant="contained" color="primary" onClick={handleProfileSave} data-testid="profile-save-button">
-                                            Save Changes
+                                        <Button variant="contained" color="primary" onClick={handleProfileSave} data-testid="profile-save-button">{t("profile.saveChanges")}
                                         </Button>
-                                        <Button variant="outlined" color="secondary" onClick={handleEditToggle}>
-                                            Cancel
+                                        <Button variant="outlined" color="secondary" onClick={handleEditToggle}>{t("profile.cancel")}
                                         </Button>
                                     </>
                                 ) : (
-                                    <Button variant="outlined" color="primary" onClick={handleEditToggle} data-testid="profile-edit-button">
-                                        Edit Profile
+                                    <Button variant="outlined" color="primary" onClick={handleEditToggle} data-testid="profile-edit-button">{t("profile.editProfile")}
                                     </Button>
                                 )}
                             </Box>
@@ -195,10 +194,10 @@ const Profile = () => {
                 </Grid>
 
                 <Grid item xs={12} md={6}>
-                    <Card title="Change Password">
+                    <Card title={t("profile.changePassword")}>
                         <Box display="flex" flexDirection="column" gap={2}>
                             <TextField
-                                label="Current Password"
+                                label={t("profile.currentPassword")}
                                 type="password"
                                 size="small"
                                 fullWidth
@@ -208,7 +207,7 @@ const Profile = () => {
                             />
                             
                             <TextField
-                                label="New Password"
+                                label={t("profile.newPassword")}
                                 type="password"
                                 size="small"
                                 fullWidth
@@ -218,7 +217,7 @@ const Profile = () => {
                             />
                             
                             <TextField
-                                label="Confirm New Password"
+                                label={t("profile.confirmNewPassword")}
                                 type="password"
                                 size="small"
                                 fullWidth
@@ -234,8 +233,7 @@ const Profile = () => {
                                     onClick={handlePasswordSave} 
                                     data-testid="profile-password-save"
                                     disabled={!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword}
-                                >
-                                    Change Password
+                                >{t("profile.changePasswordBtn")}
                                 </Button>
                             </Box>
                         </Box>

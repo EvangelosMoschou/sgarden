@@ -11,26 +11,31 @@ import background from "../assets/images/background.jpg";
 import { forgotPassword } from "../api/index.js";
 import Form from "../components/Form.js";
 
-const useStyles = makeStyles((theme) => ({
-	root: {
-		overflow: "hidden",
-		width: "100vw",
-		height: "100%",
-		backgroundImage: `url(${background})`,
-		backgroundPosition: "center",
-		backgroundSize: "cover",
-	},
-	title: {
-		color: theme.palette.common.white,
+const useStyles = makeStyles((theme) => {
+	const commonText = {
 		letterSpacing: theme.spacing(0.1),
 		maxWidth: "300px",
-	},
-	subtitle: {
-		color: theme.palette.third.main,
-		letterSpacing: theme.spacing(0.1),
-		maxWidth: "300px",
-	},
-}));
+	};
+
+	return {
+		root: {
+			overflow: "hidden",
+			width: "100vw",
+			height: "100%",
+			backgroundImage: `url(${background})`,
+			backgroundPosition: "center",
+			backgroundSize: "cover",
+		},
+		title: {
+			...commonText,
+			color: theme.palette.common.white,
+		},
+		subtitle: {
+			...commonText,
+			color: theme.palette.third.main,
+		},
+	};
+});
 
 const ForgotPassword = () => {
 	const [isSubmitting, setIsSubmitting] = useState(false);

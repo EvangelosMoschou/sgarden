@@ -70,21 +70,37 @@ const InvitedSignUp = () => {
 		setIsSubmitting(false);
 	};
 
+	const getIconAdornment = (Icon) => ({
+		endAdornment: (
+			<InputAdornment position="start">
+				<IconButton disabled>
+					<Icon />
+				</IconButton>
+			</InputAdornment>
+		),
+	});
+
+	const getPasswordAdornment = () => ({
+		endAdornment: (
+			<InputAdornment position="start">
+				<IconButton
+					aria-label="toggle password visibility"
+					tabIndex={-1}
+					onClick={handleShowPassword}
+				>
+					{showPassword ? <Visibility /> : <VisibilityOff />}
+				</IconButton>
+			</InputAdornment>
+		),
+	});
+
 	const formContent = [
 		{
 			customType: "input",
 			id: "username",
 			type: "text",
 			placeholder: "Username",
-			inputProps: {
-				endAdornment: (
-					<InputAdornment position="start">
-						<IconButton disabled>
-							<AccountCircle />
-						</IconButton>
-					</InputAdornment>
-				),
-			},
+			inputProps: getIconAdornment(AccountCircle),
 		},
 		{
 			customType: "input",
@@ -93,53 +109,21 @@ const InvitedSignUp = () => {
 			placeholder: "E-mail",
 			value: email,
 			disabled: true,
-			inputProps: {
-				endAdornment: (
-					<InputAdornment position="start">
-						<IconButton disabled>
-							<EmailIcon />
-						</IconButton>
-					</InputAdornment>
-				),
-			},
+			inputProps: getIconAdornment(EmailIcon),
 		},
 		{
 			customType: "input",
 			id: "password",
 			type: showPassword ? "text" : "password",
 			placeholder: "Password",
-			inputProps: {
-				endAdornment: (
-					<InputAdornment position="start">
-						<IconButton
-							aria-label="toggle password visibility"
-							tabIndex={-1}
-							onClick={handleShowPassword}
-						>
-							{showPassword ? <Visibility /> : <VisibilityOff />}
-						</IconButton>
-					</InputAdornment>
-				),
-			},
+			inputProps: getPasswordAdornment(),
 		},
 		{
 			customType: "input",
 			id: "confirmPassword",
 			type: showPassword ? "text" : "password",
 			placeholder: "Re-type Password",
-			inputProps: {
-				endAdornment: (
-					<InputAdornment position="start">
-						<IconButton
-							aria-label="toggle password visibility"
-							tabIndex={-1}
-							onClick={handleShowPassword}
-						>
-							{showPassword ? <Visibility /> : <VisibilityOff />}
-						</IconButton>
-					</InputAdornment>
-				),
-			},
+			inputProps: getPasswordAdornment(),
 		},
 		{
 			customType: "button",

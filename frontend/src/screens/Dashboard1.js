@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Grid, Typography, Box, IconButton, Button } from "@mui/material";
 import { Star, StarBorder } from "@mui/icons-material";
 import { useSearchParams } from "react-router-dom";
@@ -7,6 +8,7 @@ import Card from "../components/Card.js";
 import Plot from "../components/Plot.js";
 import DatePicker from "../components/DatePicker.js";
 import Map from "../components/Map.js";
+import NotesPanel from "../components/NotesPanel.js";
 
 import colors from "../_colors.scss";
 
@@ -15,6 +17,7 @@ import { generateRandomDecimal, randomDate } from "../utils/dashboard.js";
 import useGlobalState from "../use-global-state.js";
 
 const Dashboard = () => {
+    const { t } = useTranslation();
     const favorites = useGlobalState((state) => state.favorites);
     const toggleFavorite = useGlobalState((state) => state.toggleFavorite);
     const isFavorite = favorites.includes("/dashboard1");
@@ -143,7 +146,7 @@ const Dashboard = () => {
         <Grid container py={2} flexDirection="column">
             <Box display="flex" alignItems="center" mb={1}>
                 <Typography variant="h4" color="white.main" mr={1}>
-                    Analytics
+                    {t("dashboard1.analytics")}
                 </Typography>
                 <IconButton
                     data-testid="bookmark-toggle-dashboard1"
@@ -157,6 +160,7 @@ const Dashboard = () => {
                     )}
                 </IconButton>
             </Box>
+            <NotesPanel dashboardKey="/dashboard1" title="Analytics Notes" />
 
             <Grid item style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginBottom: "20px", gap: "15px" }}>
                 {isFilterActive && (
@@ -177,10 +181,10 @@ const Dashboard = () => {
                     onClick={handleResetFilters}
                     data-testid="filter-reset-button"
                 >
-                    Reset Filters
+                    {t("dashboard1.resetFilters")}
                 </Button>
                 <Box display="flex" alignItems="center">
-                    <Typography variant="body1" style={{ marginRight: "10px" }} color="white.main">Region:</Typography>
+                    <Typography variant="body1" style={{ marginRight: "10px" }} color="white.main">{t("dashboard1.region")}</Typography>
                     <Dropdown
                         items={availableRegions.map((region) => ({ value: region, text: region }))}
                         value={selectedRegion}
@@ -193,7 +197,7 @@ const Dashboard = () => {
                 <Grid container item sm={12} md={4} spacing={4}>
                     <Grid item width="100%">
                         <Card
-                            title="Key Metric"
+                            title={t("dashboard1.keyMetricTitle")}
                             footer={(
                                 <Box
                                     width="100%"
@@ -208,7 +212,7 @@ const Dashboard = () => {
                                     {selectedMetric && (
                                         <>
                                             <Typography variant="body">
-                                                {`Latest value of ${selectedMetric} for ${selectedRegion}`}
+                                                {t("dashboard1.latestValue", { metric: selectedMetric, region: selectedRegion })}
                                             </Typography>
                                             <Typography variant="body1" fontWeight="bold" color="primary.main">
                                                 {`${data.keyMetric.date.toLocaleString("en-GB", { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit" })} - ${data.keyMetric.value.toFixed(2)}%`}
@@ -218,7 +222,7 @@ const Dashboard = () => {
                                     {!selectedMetric && (
                                         <>
                                             <Typography variant="body1" fontWeight="bold" color="white.main">
-                                                {"No metric selected"}
+                                                {t("dashboard1.noMetricSelected")}
                                             </Typography>
                                         </>
                                     )}
@@ -226,12 +230,12 @@ const Dashboard = () => {
                             )}
                         >
                             <Box height="100px" display="flex" alignItems="center" justifyContent="space-between">
-                                <Typography width="fit-content" variant="subtitle1">Metric:</Typography>
+                                <Typography width="fit-content" variant="subtitle1">{t("dashboard1.metricLabel")}</Typography>
                                 <Dropdown
                                     width="50%"
                                     height="40px"
                                     size="small"
-                                    placeholder="Select"
+                                    placeholder={t("dashboard1.select")}
                                     background="greyDark"
                                     items={availableMetrics.map((metric) => ({ value: metric, text: metric }))}
                                     value={selectedMetric}
@@ -242,24 +246,24 @@ const Dashboard = () => {
                         </Card>
                     </Grid>
                     <Grid item width="100%">
-                        <Card title="Regional Overview">
+                        <Card title={t("dashboard1.regionalOverview")}>
                             <Map />
                         </Card>
                     </Grid>
                 </Grid>
 
                 <Grid item sm={12} md={8}>
-                    <Card title="Trends">
+                    <Card title={t("dashboard1.trendsTitle")}>
                         <Box display="flex" justifyContent="space-between" mb={1}>
                             <Grid item xs={12} sm={6} display="flex" flexDirection="row" alignItems="center">
                                 <Typography variant="subtitle1" align="center" mr={2}>
-                                    {"From: "}
+                                    {t("dashboard1.fromLabel")}
                                 </Typography>
                                 <DatePicker
                                     width="200px"
                                     views={["month", "year"]}
                                     inputFormat="MM/YYYY"
-                                    label="From"
+                                    label={t("dashboard1.from")}
                                     background="greyDark"
                                     value={fromDate}
                                     onChange={(value) => setFromDate(value)}
@@ -268,13 +272,13 @@ const Dashboard = () => {
                             </Grid>
                             <Grid item xs={12} sm={6} display="flex" flexDirection="row" alignItems="center" justifyContent="flex-end">
                                 <Typography variant="subtitle1" align="center" mr={2}>
-                                    {"To: "}
+                                    {t("dashboard1.toLabel")}
                                 </Typography>
                                 <DatePicker
                                     width="200px"
                                     views={["month", "year"]}
                                     inputFormat="MM/YYYY"
-                                    label="To"
+                                    label={t("dashboard1.to")}
                                     background="greyDark"
                                     value={toDate}
                                     onChange={(value) => setToDate(value)}
@@ -308,7 +312,7 @@ const Dashboard = () => {
                                         },
                                     ]}
                                     showLegend={false}
-                                    title="Revenue"
+                                    title={t("dashboard1.revenue")}
                                     titleColor="primary"
                                     titleFontSize={16}
                                     displayBar={false}
@@ -321,7 +325,7 @@ const Dashboard = () => {
                                             y: Math.min(...data.revenue),
                                             xref: "x",
                                             yref: "y",
-                                            text: `Min: ${Math.min(...data.revenue).toFixed(2)}%`,
+                                            text: `${t("dashboard1.min")}${Math.min(...data.revenue).toFixed(2)}%`,
                                             showarrow: true,
                                             font: { size: 16, color: "#ffffff" },
                                             align: "center",
@@ -338,7 +342,7 @@ const Dashboard = () => {
                                             y: Math.max(...data.revenue),
                                             xref: "x",
                                             yref: "y",
-                                            text: `Max: ${Math.max(...data.revenue).toFixed(2)}%`,
+                                            text: `${t("dashboard1.max")}${Math.max(...data.revenue).toFixed(2)}%`,
                                             showarrow: true,
                                             font: { size: 16, color: "#ffffff" },
                                             align: "center",
@@ -353,7 +357,7 @@ const Dashboard = () => {
                                     ]}
                                 />
                                 <Typography variant="body1" textAlign="center">
-                                    {`Average: ${(data.revenue.reduce((acc, curr) => acc + curr, 0) / data.revenue.length).toFixed(2)}%`}
+                                    {`${t("dashboard1.average")}${(data.revenue.reduce((acc, curr) => acc + curr, 0) / data.revenue.length).toFixed(2)}%`}
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} md={6}>
@@ -381,7 +385,7 @@ const Dashboard = () => {
                                         },
                                     ]}
                                     showLegend={false}
-                                    title="Expenses"
+                                    title={t("dashboard1.expenses")}
                                     titleColor="primary"
                                     titleFontSize={16}
                                     displayBar={false}
@@ -394,7 +398,7 @@ const Dashboard = () => {
                                             y: Math.min(...data.expenses),
                                             xref: "x",
                                             yref: "y",
-                                            text: `Min: ${Math.min(...data.expenses).toFixed(2)}%`,
+                                            text: `${t("dashboard1.min")}${Math.min(...data.expenses).toFixed(2)}%`,
                                             showarrow: true,
                                             font: { size: 16, color: "#ffffff" },
                                             align: "center",
@@ -411,7 +415,7 @@ const Dashboard = () => {
                                             y: Math.max(...data.expenses),
                                             xref: "x",
                                             yref: "y",
-                                            text: `Max: ${Math.max(...data.expenses).toFixed(2)}%`,
+                                            text: `${t("dashboard1.max")}${Math.max(...data.expenses).toFixed(2)}%`,
                                             showarrow: true,
                                             font: { size: 16, color: "#ffffff" },
                                             align: "center",
@@ -426,7 +430,7 @@ const Dashboard = () => {
                                     ]}
                                 />
                                 <Typography variant="body1" textAlign="center">
-                                    {`Average: ${(data.expenses.reduce((acc, curr) => acc + curr, 0) / data.expenses.length).toFixed(2)}%`}
+                                    {`${t("dashboard1.average")}${(data.expenses.reduce((acc, curr) => acc + curr, 0) / data.expenses.length).toFixed(2)}%`}
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} md={6}>
@@ -454,7 +458,7 @@ const Dashboard = () => {
                                         },
                                     ]}
                                     showLegend={false}
-                                    title="Profit"
+                                    title={t("dashboard1.profit")}
                                     titleColor="primary"
                                     titleFontSize={16}
                                     displayBar={false}
@@ -467,7 +471,7 @@ const Dashboard = () => {
                                             y: Math.min(...data.profit),
                                             xref: "x",
                                             yref: "y",
-                                            text: `Min: ${Math.min(...data.profit).toFixed(2)}%`,
+                                            text: `${t("dashboard1.min")}${Math.min(...data.profit).toFixed(2)}%`,
                                             showarrow: true,
                                             font: { size: 16, color: "#ffffff" },
                                             align: "center",
@@ -484,7 +488,7 @@ const Dashboard = () => {
                                             y: Math.max(...data.profit),
                                             xref: "x",
                                             yref: "y",
-                                            text: `Max: ${Math.max(...data.profit).toFixed(2)}%`,
+                                            text: `${t("dashboard1.max")}${Math.max(...data.profit).toFixed(2)}%`,
                                             showarrow: true,
                                             font: { size: 16, color: "#ffffff" },
                                             align: "center",
@@ -499,7 +503,7 @@ const Dashboard = () => {
                                     ]}
                                 />
                                 <Typography variant="body1" textAlign="center">
-                                    {`Average: ${(data.profit.reduce((acc, curr) => acc + curr, 0) / data.profit.length).toFixed(2)}%`}
+                                    {`${t("dashboard1.average")}${(data.profit.reduce((acc, curr) => acc + curr, 0) / data.profit.length).toFixed(2)}%`}
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} md={6}>
@@ -527,7 +531,7 @@ const Dashboard = () => {
                                         },
                                     ]}
                                     showLegend={false}
-                                    title="Growth Rate"
+                                    title={t("dashboard1.growthRate")}
                                     titleColor="primary"
                                     titleFontSize={16}
                                     displayBar={false}
@@ -540,7 +544,7 @@ const Dashboard = () => {
                                             y: Math.min(...data.growthRate),
                                             xref: "x",
                                             yref: "y",
-                                            text: `Min: ${Math.min(...data.growthRate).toFixed(2)}%`,
+                                            text: `${t("dashboard1.min")}${Math.min(...data.growthRate).toFixed(2)}%`,
                                             showarrow: true,
                                             font: { size: 16, color: "#ffffff" },
                                             align: "center",
@@ -557,7 +561,7 @@ const Dashboard = () => {
                                             y: Math.max(...data.growthRate),
                                             xref: "x",
                                             yref: "y",
-                                            text: `Max: ${Math.max(...data.growthRate).toFixed(2)}%`,
+                                            text: `${t("dashboard1.max")}${Math.max(...data.growthRate).toFixed(2)}%`,
                                             showarrow: true,
                                             font: { size: 16, color: "#ffffff" },
                                             align: "center",
@@ -572,7 +576,7 @@ const Dashboard = () => {
                                     ]}
                                 />
                                 <Typography variant="body1" textAlign="center">
-                                    {`Average: ${(data.growthRate.reduce((acc, curr) => acc + curr, 0) / data.growthRate.length).toFixed(2)}%`}
+                                    {`${t("dashboard1.average")}${(data.growthRate.reduce((acc, curr) => acc + curr, 0) / data.growthRate.length).toFixed(2)}%`}
                                 </Typography>
                             </Grid>
                         </Grid>
