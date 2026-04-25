@@ -244,10 +244,7 @@ const Header = ({ isAuthenticated, mode, onToggleMode }) => {
 	const currentPath = `/${location.pathname.split("/").filter(Boolean)[0] || "dashboard1"}`;
 	const currentLabel = breadcrumbLabelMap[currentPath] || capitalize(currentPath.slice(1) || "dashboard1");
 
-	for (const [ind, path] of pathnames.entries()) {
-		let text = capitalize(path);
-		crumps.push(<CrumpLink to={`/${pathnames.slice(0, ind + 1).join("/")}`}>{text}</CrumpLink>);
-	}
+
 
 	return (
 		<>
