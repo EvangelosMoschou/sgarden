@@ -146,6 +146,23 @@ export default create(persist(
 				},
 			};
 		}),
+		salesRecords: [],
+		addSalesRecord: (record) => setState((state) => ({
+			salesRecords: [
+				{
+					id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+					createdAt: new Date().toISOString(),
+					...record
+				},
+				...state.salesRecords,
+			]
+		})),
+		updateSalesRecord: (id, updates) => setState((state) => ({
+			salesRecords: state.salesRecords.map(r => r.id === id ? { ...r, ...updates, updatedAt: new Date().toISOString() } : r)
+		})),
+		deleteSalesRecord: (id) => setState((state) => ({
+			salesRecords: state.salesRecords.filter(r => r.id !== id)
+		})),
 	}),
 	{
 		name: "sgarden",

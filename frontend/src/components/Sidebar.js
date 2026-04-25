@@ -124,6 +124,14 @@ const Sidebar = ({ isSmall: sidebarIsSmall }) => {
 			testid: "sidebar-alerts-link"
 		},
 		{
+			text: "Manage Data",
+			handler: () => {
+				navigate("/data/manage");
+			},
+			path: "/data/manage",
+			testid: "sidebar-sales-data-link"
+		},
+		{
 			text: "Import",
 			handler: () => {
 				navigate("/import");
