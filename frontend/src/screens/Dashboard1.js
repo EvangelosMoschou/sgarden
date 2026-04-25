@@ -45,8 +45,8 @@ const Dashboard = () => {
         return today;
     });
 
-    const isFilterActive = !!selectedMetric || 
-        fromDate.getTime() !== lastYear.getTime() || 
+    const isFilterActive = !!selectedMetric ||
+        fromDate.getTime() !== lastYear.getTime() ||
         toDate.getTime() !== today.getTime();
 
     useEffect(() => {
@@ -191,61 +191,61 @@ const Dashboard = () => {
 
             <Grid container spacing={2}>
                 <Grid container item sm={12} md={4} spacing={4}>
-                        <Grid item width="100%">
-                            <Card
-                                title="Key Metric"
-                                footer={(
-                                    <Box
-                                        width="100%"
-                                        height="100px"
-                                        display="flex"
-                                        flexDirection="column"
-                                        justifyContent="center"
-                                        alignItems="center"
-                                        backgroundColor="greyDark.main"
-                                        py={1}
-                                    >
-                                        {selectedMetric && (
-                                            <>
-                                                <Typography variant="body">
-                                                    {`Latest value of ${selectedMetric} for ${selectedRegion}`}
-                                                </Typography>
-                                                <Typography variant="body1" fontWeight="bold" color="primary.main">
-                                                    {`${data.keyMetric.date.toLocaleString("en-GB", { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit" })} - ${data.keyMetric.value.toFixed(2)}%`}
-                                                </Typography>
-                                            </>
-                                        )}
-                                        {!selectedMetric && (
-                                            <>
-                                                <Typography variant="body1" fontWeight="bold" color="white.main">
-                                                    {"No metric selected"}
-                                                </Typography>
-                                            </>
-                                        )}
-                                    </Box>
-                                )}
-                            >
-                                <Box height="100px" display="flex" alignItems="center" justifyContent="space-between">
-                                    <Typography width="fit-content" variant="subtitle1">Metric:</Typography>
-                                    <Dropdown
-                                        width="50%"
-                                        height="40px"
-                                        size="small"
-                                        placeholder="Select"
-                                        background="greyDark"
-                                        items={availableMetrics.map((metric) => ({ value: metric, text: metric }))}
-                                        value={selectedMetric}
-                                        onChange={(event) => setSelectedMetric(event.target.value)}
-                                        testId="filter-metric"
-                                    />
+                    <Grid item width="100%">
+                        <Card
+                            title="Key Metric"
+                            footer={(
+                                <Box
+                                    width="100%"
+                                    height="100px"
+                                    display="flex"
+                                    flexDirection="column"
+                                    justifyContent="center"
+                                    alignItems="center"
+                                    backgroundColor="greyDark.main"
+                                    py={1}
+                                >
+                                    {selectedMetric && (
+                                        <>
+                                            <Typography variant="body">
+                                                {`Latest value of ${selectedMetric} for ${selectedRegion}`}
+                                            </Typography>
+                                            <Typography variant="body1" fontWeight="bold" color="primary.main">
+                                                {`${data.keyMetric.date.toLocaleString("en-GB", { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit" })} - ${data.keyMetric.value.toFixed(2)}%`}
+                                            </Typography>
+                                        </>
+                                    )}
+                                    {!selectedMetric && (
+                                        <>
+                                            <Typography variant="body1" fontWeight="bold" color="white.main">
+                                                {"No metric selected"}
+                                            </Typography>
+                                        </>
+                                    )}
                                 </Box>
-                            </Card>
-                        </Grid>
-                        <Grid item width="100%">
-                            <Card title="Regional Overview">
-                                <Map />
-                            </Card>
-                        </Grid>
+                            )}
+                        >
+                            <Box height="100px" display="flex" alignItems="center" justifyContent="space-between">
+                                <Typography width="fit-content" variant="subtitle1">Metric:</Typography>
+                                <Dropdown
+                                    width="50%"
+                                    height="40px"
+                                    size="small"
+                                    placeholder="Select"
+                                    background="greyDark"
+                                    items={availableMetrics.map((metric) => ({ value: metric, text: metric }))}
+                                    value={selectedMetric}
+                                    onChange={(event) => setSelectedMetric(event.target.value)}
+                                    testId="filter-metric"
+                                />
+                            </Box>
+                        </Card>
+                    </Grid>
+                    <Grid item width="100%">
+                        <Card title="Regional Overview">
+                            <Map />
+                        </Card>
+                    </Grid>
                 </Grid>
 
                 <Grid item sm={12} md={8}>
@@ -292,7 +292,7 @@ const Dashboard = () => {
                                             type: "lines",
                                             fill: "tozeroy",
                                             color: "third",
-                                            line: { shape: "spline", smoothing: 1},
+                                            line: { shape: "spline", smoothing: 1 },
                                             markerSize: 0,
                                             hoverinfo: "none",
                                         },
@@ -323,10 +323,7 @@ const Dashboard = () => {
                                             yref: "y",
                                             text: `Min: ${Math.min(...data.revenue).toFixed(2)}%`,
                                             showarrow: true,
-                                            font: {
-                                                size: 16,
-                                                color: "#ffffff"
-                                            },
+                                            font: { size: 16, color: "#ffffff" },
                                             align: "center",
                                             arrowhead: 2,
                                             arrowsize: 1,
@@ -343,10 +340,7 @@ const Dashboard = () => {
                                             yref: "y",
                                             text: `Max: ${Math.max(...data.revenue).toFixed(2)}%`,
                                             showarrow: true,
-                                            font: {
-                                                size: 16,
-                                                color: "#ffffff"
-                                            },
+                                            font: { size: 16, color: "#ffffff" },
                                             align: "center",
                                             arrowhead: 2,
                                             arrowsize: 1,
@@ -371,7 +365,7 @@ const Dashboard = () => {
                                             type: "lines",
                                             fill: "tozeroy",
                                             color: "third",
-                                            line: { shape: "spline", smoothing: 1},
+                                            line: { shape: "spline", smoothing: 1 },
                                             markerSize: 0,
                                             hoverinfo: "none",
                                         },
@@ -402,10 +396,7 @@ const Dashboard = () => {
                                             yref: "y",
                                             text: `Min: ${Math.min(...data.expenses).toFixed(2)}%`,
                                             showarrow: true,
-                                            font: {
-                                                size: 16,
-                                                color: "#ffffff"
-                                            },
+                                            font: { size: 16, color: "#ffffff" },
                                             align: "center",
                                             arrowhead: 2,
                                             arrowsize: 1,
@@ -422,10 +413,7 @@ const Dashboard = () => {
                                             yref: "y",
                                             text: `Max: ${Math.max(...data.expenses).toFixed(2)}%`,
                                             showarrow: true,
-                                            font: {
-                                                size: 16,
-                                                color: "#ffffff"
-                                            },
+                                            font: { size: 16, color: "#ffffff" },
                                             align: "center",
                                             arrowhead: 2,
                                             arrowsize: 1,
@@ -450,7 +438,7 @@ const Dashboard = () => {
                                             type: "lines",
                                             fill: "tozeroy",
                                             color: "third",
-                                            line: { shape: "spline", smoothing: 1},
+                                            line: { shape: "spline", smoothing: 1 },
                                             markerSize: 0,
                                             hoverinfo: "none",
                                         },
@@ -481,10 +469,7 @@ const Dashboard = () => {
                                             yref: "y",
                                             text: `Min: ${Math.min(...data.profit).toFixed(2)}%`,
                                             showarrow: true,
-                                            font: {
-                                                size: 16,
-                                                color: "#ffffff"
-                                            },
+                                            font: { size: 16, color: "#ffffff" },
                                             align: "center",
                                             arrowhead: 2,
                                             arrowsize: 1,
@@ -501,10 +486,7 @@ const Dashboard = () => {
                                             yref: "y",
                                             text: `Max: ${Math.max(...data.profit).toFixed(2)}%`,
                                             showarrow: true,
-                                            font: {
-                                                size: 16,
-                                                color: "#ffffff"
-                                            },
+                                            font: { size: 16, color: "#ffffff" },
                                             align: "center",
                                             arrowhead: 2,
                                             arrowsize: 1,
@@ -529,7 +511,7 @@ const Dashboard = () => {
                                             type: "lines",
                                             fill: "tozeroy",
                                             color: "third",
-                                            line: { shape: "spline", smoothing: 1},
+                                            line: { shape: "spline", smoothing: 1 },
                                             markerSize: 0,
                                             hoverinfo: "none",
                                         },
@@ -560,10 +542,7 @@ const Dashboard = () => {
                                             yref: "y",
                                             text: `Min: ${Math.min(...data.growthRate).toFixed(2)}%`,
                                             showarrow: true,
-                                            font: {
-                                                size: 16,
-                                                color: "#ffffff"
-                                            },
+                                            font: { size: 16, color: "#ffffff" },
                                             align: "center",
                                             arrowhead: 2,
                                             arrowsize: 1,
@@ -580,10 +559,7 @@ const Dashboard = () => {
                                             yref: "y",
                                             text: `Max: ${Math.max(...data.growthRate).toFixed(2)}%`,
                                             showarrow: true,
-                                            font: {
-                                                size: 16,
-                                                color: "#ffffff"
-                                            },
+                                            font: { size: 16, color: "#ffffff" },
                                             align: "center",
                                             arrowhead: 2,
                                             arrowsize: 1,

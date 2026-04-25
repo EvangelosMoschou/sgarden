@@ -120,7 +120,7 @@ const Dashboard = () => {
                         title="Weekly Sales"
                         footer={(
                             <Grid sx={{ width: "100%", borderTop: "1px solid gray" }}>
-                                <Typography variant="body2" component="p" sx={{ marginTop: "10px" }}>{"🕗 averages (last month)"}</Typography>
+                                <Typography variant="body2" component="p" sx={{ marginTop: "10px" }}>{"\ud83d\udd57 averages (last month)"}</Typography>
                             </Grid>
                         )}
                         footerBackgroundColor="white"
@@ -150,7 +150,7 @@ const Dashboard = () => {
                         title="Revenue Trend"
                         footer={(
                             <Grid sx={{ width: "100%", borderTop: "1px solid gray" }}>
-                                <Typography variant="body2" component="p" sx={{ marginTop: "10px" }}>{"🕗 updated 4min ago"}</Typography>
+                                <Typography variant="body2" component="p" sx={{ marginTop: "10px" }}>{"\ud83d\udd57 updated 4min ago"}</Typography>
                             </Grid>
                         )}
                         footerBackgroundColor="white"
@@ -178,7 +178,7 @@ const Dashboard = () => {
                         title="Customer Satisfaction"
                         footer={(
                             <Grid sx={{ width: "100%", borderTop: "1px solid gray" }}>
-                                <Typography variant="body2" component="p" sx={{ marginTop: "10px" }}>{"🕗 just updated"}</Typography>
+                                <Typography variant="body2" component="p" sx={{ marginTop: "10px" }}>{"\ud83d\udd57 just updated"}</Typography>
                             </Grid>
                         )}
                         footerBackgroundColor="white"

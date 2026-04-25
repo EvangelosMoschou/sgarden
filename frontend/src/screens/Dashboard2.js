@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Grid, Typography, Box, IconButton } from "@mui/material";
 import { Star, StarBorder } from "@mui/icons-material";
+
 import Dropdown from "../components/Dropdown.js";
 import Card from "../components/Card.js";
 import Plot from "../components/Plot.js";
@@ -92,7 +93,7 @@ const Dashboard = () => {
                     </Card>
                 </Grid>
 
-                {/* Plots from Stashed Changes */}
+                {/* Plots */}
                 <Grid item sm={12} md={6}>
                     <Card title="Quarterly Sales Distribution">
                         <Plot

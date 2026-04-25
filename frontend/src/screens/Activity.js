@@ -1,15 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { 
     Grid, 
     Typography, 
     Box, 
-    Button, 
     TextField, 
     CircularProgress,
-    Select,
     MenuItem,
-    FormControl,
-    InputLabel,
     Table,
     TableBody,
     TableCell,
@@ -34,7 +30,7 @@ const Activity = () => {
         dateTo: ""
     });
 
-    const fetchActivity = async (page = 1) => {
+    const fetchActivity = useCallback(async (page = 1) => {
         setLoading(true);
         try {
             const params = {
@@ -59,11 +55,11 @@ const Activity = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [filters]);
 
     useEffect(() => {
-        fetchActivity();
-    }, [filters, pagination.currentPage]);
+        fetchActivity(pagination.currentPage);
+    }, [fetchActivity, pagination.currentPage]);
 
     const handleFilterChange = (field) => (event) => {
         setFilters({ ...filters, [field]: event.target.value });

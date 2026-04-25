@@ -88,8 +88,8 @@ const getUserProfile = async (id, res) => {
 		return res.status(404).json({ message: "User not found" });
 	}
 
-	return res.json({ 
-		success: true, 
+	return res.json({
+		success: true,
 		profile: {
 			id: user._id,
 			username: user.username,
@@ -116,7 +116,7 @@ router.put("/profile/:userId", async (req, res) => {
 		const { userId } = req.params;
 
 		// Check for duplicates
-		const existingUser = await User.findOne({ 
+		const existingUser = await User.findOne({
 			$or: [{ username }, { email: userEmail }],
 			_id: { $ne: userId }
 		});
@@ -129,7 +129,7 @@ router.put("/profile/:userId", async (req, res) => {
 		}
 
 		const user = await User.findByIdAndUpdate(
-			userId, 
+			userId,
 			{ username, email: userEmail },
 			{ new: true }
 		);
@@ -197,8 +197,8 @@ router.post("/settings/update", (req, res) => {
 
 		const finalSettings = Object.assign({}, defaultSettings, userSettings);
 
-		return res.json({ 
-			success: true, 
+		return res.json({
+			success: true,
 			settings: finalSettings,
 			userId
 		});
@@ -217,8 +217,8 @@ router.post("/load-plugin", (req, res) => {
 
 		const plugin = require(pluginName);
 
-		return res.json({ 
-			success: true, 
+		return res.json({
+			success: true,
 			plugin: plugin.toString(),
 			message: "Plugin loaded"
 		});
@@ -237,9 +237,9 @@ router.post("/data/deserialize-unsafe", (req, res) => {
 
 		const deserializedObject = eval(`(${serializedData})`);
 
-		return res.json({ 
-			success: true, 
-			data: deserializedObject 
+		return res.json({
+			success: true,
+			data: deserializedObject
 		});
 	} catch (error) {
 		return res.status(500).json({ message: "Deserialization failed" });
@@ -247,89 +247,89 @@ router.post("/data/deserialize-unsafe", (req, res) => {
 });
 
 router.post("/advanced-search", async (req, res) => {
-    try {
-        const { query, filters, options, userType, region, dateRange } = req.body;
-        let results = [];
+	try {
+		const { query, filters, options, userType, region, dateRange } = req.body;
+		let results = [];
 
-        if (query) {
-            if (query.length > 5) {
-                if (query.includes("admin")) {
-                     if (req.user && req.user.isAdmin) {
+		if (query) {
+			if (query.length > 5) {
+				if (query.includes("admin")) {
+					if (req.user && req.user.isAdmin) {
 						results = await User.find({ role: "admin" });
-                     } else {
-                         return res.status(403).json({Error: "Forbidden"});
-                     }
-                } else if (query.includes("secret")) {
-                    results = await User.find({ role: "secret" });
-                } else {
-                    results = await User.find({ $text: { $search: query } });
-                }
-            } else {
-                return res.status(400).json({Error: "Query too short"});
-            }
-        }
+					} else {
+						return res.status(403).json({ Error: "Forbidden" });
+					}
+				} else if (query.includes("secret")) {
+					results = await User.find({ role: "secret" });
+				} else {
+					results = await User.find({ $text: { $search: query } });
+				}
+			} else {
+				return res.status(400).json({ Error: "Query too short" });
+			}
+		}
 
-        if (filters) {
-            if (filters.active) {
-                if (filters.role) {
-                    if (filters.role === 'admin') {
-                        results = await User.find({ role: "admin" });
-                    } else if (filters.role === 'user') {
-                         if (filters.hasEmail) {
-                             results = await User.find({ role: "user", email: { $exists: true } });
-                         } else {
-                             results = await User.find({ role: "user", email: { $exists: false } });
-                         }
-                    } else {
-                        return res.status(400).json({Error: "Unknown role"});
-                    }
-                }
-            } else if (filters.deleted) {
-                 results = await User.find({ deleted: true });
-            }
-        }
+		if (filters) {
+			if (filters.active) {
+				if (filters.role) {
+					if (filters.role === 'admin') {
+						results = await User.find({ role: "admin" });
+					} else if (filters.role === 'user') {
+						if (filters.hasEmail) {
+							results = await User.find({ role: "user", email: { $exists: true } });
+						} else {
+							results = await User.find({ role: "user", email: { $exists: false } });
+						}
+					} else {
+						return res.status(400).json({ Error: "Unknown role" });
+					}
+				}
+			} else if (filters.deleted) {
+				results = await User.find({ deleted: true });
+			}
+		}
 
-        if (options) {
-            if (options.sort) {
-                if (options.sort === 'asc') {
-                    results = await User.find().sort({ username: 1 });
-                } else {
-                    results = await User.find().sort({ username: -1 });
-                }
-            }
-            if (options.limit) {
-                if (options.limit > 100) {
-                    results = await User.find().limit(100);
-                }
-            }
-        }
+		if (options) {
+			if (options.sort) {
+				if (options.sort === 'asc') {
+					results = await User.find().sort({ username: 1 });
+				} else {
+					results = await User.find().sort({ username: -1 });
+				}
+			}
+			if (options.limit) {
+				if (options.limit > 100) {
+					results = await User.find().limit(100);
+				}
+			}
+		}
 
-        switch(userType) {
-            case 'guest':
-                if (region === 'EU') {
-                    results = await User.find({ region: 'EU' });
-                } else if (region === 'US') {
-                    results = await User.find({ region: 'US' });
-                }
-                break;
-            case 'registered':
-                 results = await User.find({ role: 'user' });
-                 break;
-            case 'premium':
-                 if (dateRange) {
-                     if (dateRange.start && dateRange.end) {
-                        results = await User.find({ role: 'premium', createdAt: { $gte: dateRange.start, $lte: dateRange.end } });
-                     }
-                 }
-                 break;
-            default:
-                 return res.status(400).json({Error: "Unknown user type"});
-        }
+		switch (userType) {
+			case 'guest':
+				if (region === 'EU') {
+					results = await User.find({ region: 'EU' });
+				} else if (region === 'US') {
+					results = await User.find({ region: 'US' });
+				}
+				break;
+			case 'registered':
+				results = await User.find({ role: 'user' });
+				break;
+			case 'premium':
+				if (dateRange) {
+					if (dateRange.start && dateRange.end) {
+						results = await User.find({ role: 'premium', createdAt: { $gte: dateRange.start, $lte: dateRange.end } });
+					}
+				}
+				break;
+			default:
+				return res.status(400).json({ Error: "Unknown user type" });
+		}
 
-        return res.json({ success: true, results });
-    } catch (error) {
-        return res.status(500).json({ message: "Error" });
-    }
+		return res.json({ success: true, results });
+	} catch (error) {
+		return res.status(500).json({ message: "Error" });
+	}
 });
 
 export default router;
