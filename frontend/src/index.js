@@ -8,6 +8,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { CssBaseline } from "@mui/material";
 
 import "./index.scss";
+import "./i18n";
 import colors from "./_colors.scss";
 import "react-table-6/react-table.css";
 import Header from "./components/Header.js";

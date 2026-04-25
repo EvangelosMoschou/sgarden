@@ -12,6 +12,7 @@ import {
 } from "@mui/icons-material";
 import { makeStyles } from "@mui/styles";
 import { Image } from "mui-image";
+import { useTranslation } from "react-i18next";
 
 import { jwt, capitalize } from "../utils/index.js";
 import useGlobalState from "../use-global-state.js";
@@ -100,13 +101,16 @@ const ButtonWithText = ({ text, icon, more, handler, testId }) => (
 
 const Header = ({ isAuthenticated, mode, onToggleMode }) => {
 	const classes = useStyles();
+	const { t, i18n } = useTranslation();
 
 	const location = useLocation();
 	const navigate = useNavigate();
 	const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
 	const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
+	const [languageAnchorEl, setLanguageAnchorEl] = useState(null);
 	const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 	const isNotificationMenuOpen = Boolean(notificationAnchorEl);
+	const isLanguageMenuOpen = Boolean(languageAnchorEl);
 	const notifications = useGlobalState((state) => state.notifications);
 	const markNotificationRead = useGlobalState((state) => state.markNotificationRead);
 	const markAllNotificationsRead = useGlobalState((state) => state.markAllNotificationsRead);
@@ -116,6 +120,13 @@ const Header = ({ isAuthenticated, mode, onToggleMode }) => {
 	const handleMobileMenuOpen = (event) => setMobileMoreAnchorEl(event.currentTarget);
 	const handleNotificationMenuClose = () => setNotificationAnchorEl(null);
 	const handleNotificationMenuOpen = (event) => setNotificationAnchorEl(event.currentTarget);
+	const handleLanguageMenuClose = () => setLanguageAnchorEl(null);
+	const handleLanguageMenuOpen = (event) => setLanguageAnchorEl(event.currentTarget);
+	const changeLanguage = (lng) => {
+		i18n.changeLanguage(lng);
+		localStorage.setItem("language", lng);
+		handleLanguageMenuClose();
+	};
 
 	const CrumpLink = styled(Link)(({ theme }) => ({ display: "flex", color: theme.palette.third.main }));
 	const unreadCount = useMemo(() => notifications.filter((notification) => !notification.read).length, [notifications]);
@@ -132,7 +143,7 @@ const Header = ({ isAuthenticated, mode, onToggleMode }) => {
 	const buttons = [
 		{
 			icon: <PersonIcon className={classes.svgIcon} sx={{ fill: "currentColor" }} />,
-			text: "Profile",
+			text: t("header.profile"),
 			handler: () => {
 				navigate("/profile");
 			},
@@ -140,13 +151,27 @@ const Header = ({ isAuthenticated, mode, onToggleMode }) => {
 		},
 		{
 			icon: <LogoutIcon className={classes.svgIcon} />,
-			text: "Logout",
+			text: t("header.logout"),
 			handler: () => {
 				jwt.destroyToken();
 				navigate("/");
 			},
 		},
 	];
+
+	const renderLanguageMenu = (
+		<Menu
+			keepMounted
+			anchorEl={languageAnchorEl}
+			anchorOrigin={{ vertical: "top", horizontal: "right" }}
+			transformOrigin={{ vertical: "top", horizontal: "right" }}
+			open={isLanguageMenuOpen}
+			onClose={handleLanguageMenuClose}
+		>
+			<MenuItem onClick={() => changeLanguage("en")} data-testid="language-option-en">English</MenuItem>
+			<MenuItem onClick={() => changeLanguage("el")} data-testid="language-option-el">Ελληνικά</MenuItem>
+		</Menu>
+	);
 
 	const renderMobileMenu = (
 		<Menu
@@ -183,13 +208,13 @@ const Header = ({ isAuthenticated, mode, onToggleMode }) => {
 			PaperProps={{ "data-testid": "notification-dropdown" }}
 		>
 			<Box sx={{ px: 2, py: 1.5, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
-				<Typography variant="h6" component="h2">Notifications</Typography>
+				<Typography variant="h6" component="h2">{t("header.notifications")}</Typography>
 				<Box sx={{ display: "flex", gap: 1 }}>
 					<Button size="small" variant="outlined" onClick={markAllNotificationsRead} data-testid="notification-mark-all-read" disabled={!notifications.length}>
-						Mark all as read
+						{t("header.markAllRead")}
 					</Button>
 					<Button size="small" variant="outlined" color="error" onClick={clearNotifications} data-testid="notification-clear-all" disabled={!notifications.length}>
-						Clear all
+						{t("header.clearAll")}
 					</Button>
 				</Box>
 			</Box>
@@ -197,7 +222,7 @@ const Header = ({ isAuthenticated, mode, onToggleMode }) => {
 			<Box sx={{ maxHeight: 420, overflowY: "auto" }}>
 				{recentNotifications.length === 0 ? (
 					<Box sx={{ p: 2 }} data-testid="notification-empty">
-						<Typography variant="body2" color="text.secondary">No notifications yet.</Typography>
+						<Typography variant="body2" color="text.secondary">{t("header.noNotifications")}</Typography>
 					</Box>
 				) : recentNotifications.map((notification) => (
 					<MenuItem
@@ -216,7 +241,7 @@ const Header = ({ isAuthenticated, mode, onToggleMode }) => {
 								</Box>
 								{!notification.read && (
 									<Button size="small" onClick={() => markNotificationRead(notification.id)} data-testid={`notification-mark-read-${notification.id}`}>
-										Mark as read
+										{t("header.markRead")}
 									</Button>
 								)}
 							</Box>
@@ -254,6 +279,14 @@ const Header = ({ isAuthenticated, mode, onToggleMode }) => {
 						<Image src={logo} alt="Logo" sx={{ p: 0, my: 0, height: "100%", maxWidth: "200px" }} />
 					</Box>
 					<Box className={classes.grow} style={{ height: "100%" }} />
+					<Button
+						color="inherit"
+						onClick={handleLanguageMenuOpen}
+						data-testid="language-switcher"
+						sx={{ mr: 1 }}
+					>
+						<Typography data-testid="language-active">{i18n.language.toUpperCase()}</Typography>
+					</Button>
 					<IconButton
 						color="inherit"
 						onClick={handleNotificationMenuOpen}
@@ -298,7 +331,7 @@ const Header = ({ isAuthenticated, mode, onToggleMode }) => {
 			&& (
 				<Paper elevation={0} className={classes.root} data-testid="breadcrumb-bar">
 					<Box className="header-container" sx={{ display: "flex", alignItems: "center", gap: 1, height: "100%" }}>
-						<CrumpLink to="/dashboard1" data-testid="breadcrumb-home">Home</CrumpLink>
+						<CrumpLink to="/dashboard1" data-testid="breadcrumb-home">{t("header.home")}</CrumpLink>
 						<Typography component="span" data-testid="breadcrumb-separator" aria-hidden="true">&gt;</Typography>
 						<Typography component="span" color="text.primary" data-testid="breadcrumb-current">{currentLabel}</Typography>
 					</Box>
@@ -307,6 +340,7 @@ const Header = ({ isAuthenticated, mode, onToggleMode }) => {
 			{isAuthenticated
 			&& (
 				<>
+					{renderLanguageMenu}
 					{renderMobileMenu}
 					{renderNotificationMenu}
 				</>

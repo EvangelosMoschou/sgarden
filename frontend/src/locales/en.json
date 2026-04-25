@@ -1,0 +1,12 @@
+{
+  "header": {
+    "profile": "Profile",
+    "logout": "Logout",
+    "notifications": "Notifications",
+    "markAllRead": "Mark all as read",
+    "clearAll": "Clear all",
+    "noNotifications": "No notifications yet.",
+    "markRead": "Mark as read",
+    "home": "Home"
+  }
+}
