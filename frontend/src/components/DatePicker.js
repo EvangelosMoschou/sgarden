@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TextField } from "@mui/material";
 import { TimePicker, DateTimePicker, DesktopDatePicker, MobileDatePicker } from "@mui/x-date-pickers";
 import { makeStyles } from "@mui/styles";
@@ -27,9 +27,14 @@ const DatePicker = ({
 	color = "white",
 	borderRadius = "10px",
 	width = "100%",
+	testId,
 }) => {
 	const classes = useStyles({ background, color, borderRadius, width });
 	const [customValue, setCustomValue] = useState(value);
+
+	useEffect(() => {
+		setCustomValue(value);
+	}, [value]);
 
 	const handleChange = (newValue) => {
 		setCustomValue(newValue);
@@ -46,7 +51,7 @@ const DatePicker = ({
 					label={label}
 					inputFormat={inputFormat}
 					value={customValue}
-					renderInput={(params) => <TextField {...params} />}
+					renderInput={(params) => <TextField {...params} inputProps={{ ...params.inputProps, "data-testid": testId }} />}
 					onChange={handleChange}
 				/>
 			)}
@@ -58,7 +63,7 @@ const DatePicker = ({
 					label={label}
 					inputFormat={inputFormat}
 					value={customValue}
-					renderInput={(params) => <TextField {...params} />}
+					renderInput={(params) => <TextField {...params} inputProps={{ ...params.inputProps, "data-testid": testId }} />}
 					onChange={handleChange}
 				/>
 			)}
@@ -68,7 +73,7 @@ const DatePicker = ({
 					disabled={disabled}
 					label={label}
 					value={customValue}
-					renderInput={(params) => <TextField {...params} />}
+					renderInput={(params) => <TextField {...params} inputProps={{ ...params.inputProps, "data-testid": testId }} />}
 					onChange={handleChange}
 				/>
 			)}
@@ -79,7 +84,7 @@ const DatePicker = ({
 					disabled={disabled}
 					label={label}
 					value={customValue}
-					renderInput={(params) => <TextField {...params} />}
+					renderInput={(params) => <TextField {...params} inputProps={{ ...params.inputProps, "data-testid": testId }} />}
 					onChange={handleChange}
 				/>
 			)}

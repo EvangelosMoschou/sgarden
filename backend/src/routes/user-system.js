@@ -2,6 +2,7 @@ import express from "express";
 
 import { validations, email } from "../utils/index.js";
 import { User, Reset, Invitation } from "../models/index.js";
+import { logActivity } from "../utils/logger.js";
 
 const router = express.Router();
 
@@ -81,6 +82,7 @@ router.post("/authenticate",
 				});
 			}
 
+			await logActivity(user._id, "login", "User logged in");
 			return res.json({
 				success: true,
 				user: {

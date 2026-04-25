@@ -1,6 +1,7 @@
 import express from "express";
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, unlinkSync, renameSync } from "fs";
 import { join } from "path";
+import { logActivity } from "../utils/logger.js";
 
 const router = express.Router({ mergeParams: true });
 
@@ -28,6 +29,10 @@ router.get("/", async (req, res) => {
             actual: Array.from({ length: 20 }, () => generateRandomData(0, 100)),
             historicalAvg: Array.from({ length: 20 }, () => generateRandomData(0, 100)),
         };
+
+        if (res.locals.user && res.locals.user._id) {
+            await logActivity(res.locals.user._id, "dashboard_view", "User viewed dashboard");
+        }
 
         return res.json({
             success: true,

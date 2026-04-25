@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/static/css/main.e684be26.css",
+    "main.js": "/static/js/main.3b25387d.js",
+    "static/media/background.jpg": "/static/media/background.c32f0c3ee647825a55a7.jpg",
+    "static/media/isselLogo.png": "/static/media/isselLogo.aafc17db7865b2d596e8.png",
+    "static/media/logo.png": "/static/media/logo.da2c7fe5f8b306e1178f.png",
+    "static/media/logout.svg": "/static/media/logout.daa67946913b2af199a01a52d164ec80.svg",
+    "index.html": "/index.html",
+    "main.e684be26.css.map": "/static/css/main.e684be26.css.map",
+    "main.3b25387d.js.map": "/static/js/main.3b25387d.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e684be26.css",
+    "static/js/main.3b25387d.js"
+  ]
+}

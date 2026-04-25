@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Grid, Typography, Box } from "@mui/material";
+import { Grid, Typography, Box, IconButton } from "@mui/material";
+import { Star, StarBorder } from "@mui/icons-material";
 import Dropdown from "../components/Dropdown.js";
 import Card from "../components/Card.js";
 import Plot from "../components/Plot.js";
@@ -10,8 +11,12 @@ import colors from "../_colors.scss";
 
 import { availableRegions, availableMetrics } from "../utils/constants.js";
 import { generateRandomDecimal, randomDate } from "../utils/dashboard.js";
+import useGlobalState from "../use-global-state.js";
 
 const Dashboard = () => {
+    const favorites = useGlobalState((state) => state.favorites);
+    const toggleFavorite = useGlobalState((state) => state.toggleFavorite);
+    const isFavorite = favorites.includes("/dashboard1");
 
     const [selectedRegion, setSelectedRegion] = useState("Thessaloniki");
     const [selectedMetric, setSelectedMetric] = useState(null);
@@ -59,9 +64,22 @@ const Dashboard = () => {
 
     return (
         <Grid container py={2} flexDirection="column">
-            <Typography variant="h4" gutterBottom color="white.main">
-                Analytics
-            </Typography>
+            <Box display="flex" alignItems="center" mb={1}>
+                <Typography variant="h4" color="white.main" mr={1}>
+                    Analytics
+                </Typography>
+                <IconButton
+                    data-testid="bookmark-toggle-dashboard1"
+                    onClick={() => toggleFavorite("/dashboard1")}
+                    color="primary"
+                >
+                    {isFavorite ? (
+                        <Star data-testid="bookmark-active-dashboard1" />
+                    ) : (
+                        <StarBorder />
+                    )}
+                </IconButton>
+            </Box>
 
             <Grid item style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginBottom: "20px" }}>
                 <Typography variant="body1" style={{ marginRight: "10px" }} color="white.main">Region:</Typography>
@@ -193,6 +211,8 @@ const Dashboard = () => {
                                     titleFontSize={16}
                                     displayBar={false}
                                     height="250px"
+                                    exportCsvTestId="export-csv-revenue"
+                                    exportCsvFileName="revenue.csv"
                                     annotations={[
                                         {
                                             x: months[data.revenue.indexOf(Math.min(...data.revenue))],
@@ -270,6 +290,8 @@ const Dashboard = () => {
                                     titleFontSize={16}
                                     displayBar={false}
                                     height="250px"
+                                    exportCsvTestId="export-csv-expenses"
+                                    exportCsvFileName="expenses.csv"
                                     annotations={[
                                         {
                                             x: months[data.expenses.indexOf(Math.min(...data.expenses))],
@@ -347,6 +369,8 @@ const Dashboard = () => {
                                     titleFontSize={16}
                                     displayBar={false}
                                     height="250px"
+                                    exportCsvTestId="export-csv-profit"
+                                    exportCsvFileName="profit.csv"
                                     annotations={[
                                         {
                                             x: months[data.profit.indexOf(Math.min(...data.profit))],
@@ -424,6 +448,8 @@ const Dashboard = () => {
                                     titleFontSize={16}
                                     displayBar={false}
                                     height="250px"
+                                    exportCsvTestId="export-csv-growth-rate"
+                                    exportCsvFileName="growth-rate.csv"
                                     annotations={[
                                         {
                                             x: months[data.growthRate.indexOf(Math.min(...data.growthRate))],

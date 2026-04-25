@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Grid, Typography, Box } from "@mui/material";
+import { Grid, Typography, Box, IconButton } from "@mui/material";
+import { Star, StarBorder } from "@mui/icons-material";
 
 import Dropdown from "../components/Dropdown.js";
 import Card from "../components/Card.js";
@@ -7,8 +8,12 @@ import Plot from "../components/Plot.js";
 
 import { availableRegions } from "../utils/constants.js";
 import { generateRandomData, formatNumber } from "../utils/dashboard.js";
+import useGlobalState from "../use-global-state.js";
 
 const Dashboard = () => {
+    const favorites = useGlobalState((state) => state.favorites);
+    const toggleFavorite = useGlobalState((state) => state.toggleFavorite);
+    const isFavorite = favorites.includes("/dashboard");
 
     const [selectedRegion, setSelectedRegion] = useState("Thessaloniki");
     const [data, setData] = useState({});
@@ -37,9 +42,22 @@ const Dashboard = () => {
 
     return (
         <Grid container py={2} flexDirection="column">
-            <Typography variant="h4" gutterBottom color="white.main">
-                Overview
-            </Typography>
+            <Box display="flex" alignItems="center" mb={1}>
+                <Typography variant="h4" color="white.main" mr={1}>
+                    Overview
+                </Typography>
+                <IconButton
+                    data-testid="bookmark-toggle-dashboard"
+                    onClick={() => toggleFavorite("/dashboard")}
+                    color="primary"
+                >
+                    {isFavorite ? (
+                        <Star data-testid="bookmark-active-dashboard" />
+                    ) : (
+                        <StarBorder />
+                    )}
+                </IconButton>
+            </Box>
 
             <Grid item style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginBottom: "20px" }}>
                 <Typography variant="body1" style={{ marginRight: "10px" }} color="white.main">Region:</Typography>
@@ -122,6 +140,8 @@ const Dashboard = () => {
                             titleColor="primary"
                             titleFontSize={16}
                             displayBar={false}
+                            exportCsvTestId="export-csv-weekly-sales"
+                            exportCsvFileName="weekly-sales.csv"
                         />
                     </Card>
                 </Grid>
@@ -148,6 +168,8 @@ const Dashboard = () => {
                             titleColor="primary"
                             titleFontSize={16}
                             displayBar={false}
+                            exportCsvTestId="export-csv-revenue-trend"
+                            exportCsvFileName="revenue-trend.csv"
                         />
                     </Card>
                 </Grid>
@@ -174,6 +196,8 @@ const Dashboard = () => {
                             titleColor="primary"
                             titleFontSize={16}
                             displayBar={false}
+                            exportCsvTestId="export-csv-customer-satisfaction"
+                            exportCsvFileName="customer-satisfaction.csv"
                         />
                     </Card>
                 </Grid>

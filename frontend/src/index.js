@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { Route, Routes, BrowserRouter as Router, useLocation } from "react-router-dom";
 import { StyledEngineProvider, ThemeProvider, createTheme } from "@mui/material/styles";
@@ -25,14 +25,17 @@ import SignUp from "./screens/SignUp.js";
 import InvitedSignUp from "./screens/InvitedSignUp.js";
 import Auth from "./screens/Auth.js";
 import Users from "./screens/Users.js";
+import Activity from "./screens/Activity.js";
 import Dashboard from "./screens/Dashboard.js";
 import Dashboard1 from "./screens/Dashboard1.js";
 import Dashboard2 from "./screens/Dashboard2.js";
+import Profile from "./screens/Profile.js";
 import { adjustColors, jwt, colorSuggestions } from "./utils/index.js";
 import Map from "./components/Map.js";
 
-const theme = createTheme({
+const themeOptions = (mode) => ({
 	palette: {
+		mode,
 		primary: { main: colors.primary },
 		secondary: { main: colors.secondary || colorSuggestions.secondary },
 		third: { main: colors.third || colorSuggestions.third },
@@ -55,24 +58,45 @@ const theme = createTheme({
 		greyDark: { main: colors.greyDark },
 		green: { main: colors.green },
 		white: { main: "#ffffff" },
+		background: {
+			default: mode === "dark" ? "#0f172a" : "#f7fafc",
+			paper: mode === "dark" ? "#111827" : "#ffffff",
+		},
+		text: {
+			primary: mode === "dark" ? "#e5e7eb" : "#102030",
+			secondary: mode === "dark" ? "#cbd5e1" : "#425466",
+		},
 	},
 });
 
 const App = () => {
 	const location = useLocation();
 	const [authenticated, setAuthenticated] = useState(false);
+	const [mode, setMode] = useState(() => {
+		if (typeof window === "undefined") {
+			return "light";
+		}
+
+		return window.localStorage.getItem("sgarden-theme-mode") === "dark" ? "dark" : "light";
+	});
+	const theme = useMemo(() => createTheme(themeOptions(mode)), [mode]);
 
 	useEffect(() => {
 		setAuthenticated(jwt.isAuthenticated());
 	}, [location]);
 
+	useEffect(() => {
+		window.localStorage.setItem("sgarden-theme-mode", mode);
+		document.documentElement.style.colorScheme = mode;
+	}, [mode]);
+
 	return (
 		<StyledEngineProvider injectFirst>
-			<CssBaseline />
 			<ThemeProvider theme={theme}>
+				<CssBaseline />
 				<ErrorBoundary FallbackComponent={ErrorFallback}>
 					<LocalizationProvider dateAdapter={AdapterDayjs}>
-						<Header isAuthenticated={authenticated} />
+						<Header isAuthenticated={authenticated} mode={mode} onToggleMode={() => setMode((currentMode) => (currentMode === "light" ? "dark" : "light"))} />
 						<main style={{ position: "relative", zIndex: 0, height: `calc(100vh - ${authenticated ? "160" : "70"}px)` }}>
 							<Routes>
 								<Route index element={<GuestOnly c={<SignIn />} />} />
@@ -82,9 +106,11 @@ const App = () => {
 								<Route path="sign-up" element={<GuestOnly c={<SignUp />} />} />
 								<Route path="register" element={<GuestOnly c={<InvitedSignUp />} />} />
 								<Route path="users" element={<AdminOnly c={<Users />} />} />
+								<Route path="activity" element={<AdminOnly c={<Activity />} />} />
 								<Route path="dashboard" element={<Protected c={<Dashboard />} />} />
 								<Route path="dashboard1" element={<Protected c={<Dashboard1 />} />} />
 								<Route path="dashboard2" element={<Protected c={<Dashboard2 />} />} />
+								<Route path="profile" element={<Protected c={<Profile />} />} />
 								<Route path="map" element={<Protected c={<Map />} />} />
 								<Route path="*" element={<NotFound />} />
 							</Routes>

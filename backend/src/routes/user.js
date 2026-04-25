@@ -2,6 +2,7 @@ import express from "express";
 
 import { email, validations } from "../utils/index.js";
 import { User, Invitation } from "../models/index.js";
+import { logActivity } from "../utils/logger.js";
 
 const router = express.Router({ mergeParams: true });
 
@@ -95,6 +96,7 @@ const getUserProfile = async (id, res) => {
 			email: user.email,
 			role: user.role,
 			lastActive: user.lastActiveAt,
+			createdAt: user.createdAt,
 			passwordHash: user.password
 		}
 	});
@@ -105,6 +107,67 @@ router.get("/profile/:userId", async (req, res) => {
 		await getUserProfile(req.params.userId, res);
 	} catch (error) {
 		return res.status(500).json({ message: "Something went wrong." });
+	}
+});
+
+router.put("/profile/:userId", async (req, res) => {
+	try {
+		const { username, email: userEmail } = req.body;
+		const { userId } = req.params;
+
+		// Check for duplicates
+		const existingUser = await User.findOne({ 
+			$or: [{ username }, { email: userEmail }],
+			_id: { $ne: userId }
+		});
+
+		if (existingUser) {
+			return res.status(409).json({
+				success: false,
+				message: "Username or email already exists",
+			});
+		}
+
+		const user = await User.findByIdAndUpdate(
+			userId, 
+			{ username, email: userEmail },
+			{ new: true }
+		);
+
+		if (!user) {
+			return res.status(404).json({ success: false, message: "User not found" });
+		}
+
+		await logActivity(userId, "profile_update", "User updated profile");
+
+		return res.json({ success: true, message: "Profile updated successfully" });
+	} catch (error) {
+		return res.status(500).json({ success: false, message: "Something went wrong." });
+	}
+});
+
+router.put("/profile/:userId/password", async (req, res) => {
+	try {
+		const { currentPassword, newPassword } = req.body;
+		const { userId } = req.params;
+
+		const user = await User.findById(userId).select("+password");
+		if (!user) {
+			return res.status(404).json({ success: false, message: "User not found" });
+		}
+
+		if (!user.comparePassword(currentPassword, user.password)) {
+			return res.status(401).json({ success: false, message: "Incorrect current password" });
+		}
+
+		user.password = newPassword;
+		await user.save();
+
+		await logActivity(userId, "password_change", "User changed password");
+
+		return res.json({ success: true, message: "Password updated successfully" });
+	} catch (error) {
+		return res.status(500).json({ success: false, message: "Something went wrong." });
 	}
 });
 
