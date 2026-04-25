@@ -1,11 +1,54 @@
 import express from "express";
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from "fs";
-import { join, basename, resolve } from "path";
+import { basename, resolve } from "path";
 import { logActivity } from "../utils/logger.js";
 
 const router = express.Router({ mergeParams: true });
 
 const generateRandomData = (min = 0, max = 10) => Math.random() * (max - min) + min;
+
+/**
+ * Resolves a user-supplied filename against a fixed base directory,
+ * strips traversal components via basename(), and verifies the result
+ * stays inside the base directory. Returns the safe absolute path or null.
+ */
+const safePath = (baseRelative, userInput) => {
+	const baseDir = resolve(baseRelative);
+	const sanitized = basename(userInput);
+	const full = resolve(baseDir, sanitized);
+	if (!full.startsWith(baseDir)) return null;
+	return full;
+};
+
+/**
+ * Like safePath but allows subdirectory traversal within the base
+ * (used by browse-files where the input is a directory path, not a single filename).
+ */
+const safeDirectoryPath = (baseRelative, userInput) => {
+	const baseDir = resolve(baseRelative);
+	const full = resolve(baseDir, userInput);
+	if (!full.startsWith(baseDir)) return null;
+	return full;
+};
+
+/**
+ * Reads a file from disk and sends it as a response.
+ * Centralises the duplicated read-file-and-send pattern.
+ */
+const serveFile = (res, filePath, { contentType, downloadName, encoding } = {}) => {
+	if (!existsSync(filePath)) return false;
+
+	const content = readFileSync(filePath, encoding || undefined);
+
+	if (contentType) res.setHeader("Content-Type", contentType);
+	if (downloadName) {
+		const safeDownloadName = basename(downloadName);
+		res.setHeader("Content-Disposition", `attachment; filename="${safeDownloadName}"`);
+	}
+
+	res.send(content);
+	return true;
+};
 
 router.get("/", async (req, res) => {
 	try {
@@ -53,15 +96,12 @@ router.get("/download-report", (req, res) => {
 			return res.status(400).json({ message: "Report name required" });
 		}
 
-		const safeReportName = basename(reportName);
-		const reportPath = join("./reports", safeReportName);
-
-		if (existsSync(reportPath)) {
-			const content = readFileSync(reportPath);
-
-			res.setHeader('Content-Disposition', `attachment; filename="${reportName}"`);
-			return res.send(content);
+		const reportPath = safePath("./reports", reportName);
+		if (!reportPath) {
+			return res.status(403).json({ message: "Forbidden: Invalid path" });
 		}
+
+		if (serveFile(res, reportPath, { downloadName: reportName })) return;
 
 		return res.status(404).json({ message: "Report not found" });
 	} catch (error) {
@@ -77,13 +117,12 @@ router.get("/render-page", (req, res) => {
 			return res.status(400).json({ message: "Template name required" });
 		}
 
-		const safeTemplate = basename(template);
-		const templatePath = join("./templates", safeTemplate);
-
-		if (existsSync(templatePath)) {
-			const templateContent = readFileSync(templatePath, 'utf8');
-			return res.send(templateContent);
+		const templatePath = safePath("./templates", template);
+		if (!templatePath) {
+			return res.status(403).json({ message: "Forbidden: Invalid path" });
 		}
+
+		if (serveFile(res, templatePath, { encoding: "utf8" })) return;
 
 		return res.status(404).json({ message: "Template not found" });
 	} catch (error) {
@@ -93,14 +132,16 @@ router.get("/render-page", (req, res) => {
 
 router.post("/upload-file", (req, res) => {
 	try {
-		const { filename, content, destination } = req.body;
+		const { filename, content } = req.body;
 
 		if (!filename || !content) {
 			return res.status(400).json({ message: "Filename and content required" });
 		}
 
-		const safeFilename = basename(filename);
-		const uploadPath = join("./uploads", safeFilename);
+		const uploadPath = safePath("./uploads", filename);
+		if (!uploadPath) {
+			return res.status(403).json({ message: "Forbidden: Invalid path" });
+		}
 
 		writeFileSync(uploadPath, content);
 
@@ -122,20 +163,16 @@ router.get("/export-csv", (req, res) => {
 			return res.status(400).json({ message: "Data file required" });
 		}
 
-		const safeDataFile = basename(dataFile);
-		if (!safeDataFile.endsWith('.csv')) {
+		if (!basename(dataFile).endsWith(".csv")) {
 			return res.status(400).json({ message: "Only CSV files allowed" });
 		}
 
-		const csvPath = join("./data", safeDataFile);
-
-		if (existsSync(csvPath)) {
-			const csvData = readFileSync(csvPath, 'utf8');
-
-			res.setHeader('Content-Type', 'text/csv');
-			res.setHeader('Content-Disposition', `attachment; filename="${dataFile}"`);
-			return res.send(csvData);
+		const csvPath = safePath("./data", dataFile);
+		if (!csvPath) {
+			return res.status(403).json({ message: "Forbidden: Invalid path" });
 		}
+
+		if (serveFile(res, csvPath, { contentType: "text/csv", downloadName: dataFile, encoding: "utf8" })) return;
 
 		return res.status(404).json({ message: "CSV file not found" });
 	} catch (error) {
@@ -151,20 +188,16 @@ router.get("/browse-files", (req, res) => {
 			return res.status(400).json({ message: "Directory required" });
 		}
 
-		const baseDir = resolve("./files");
-		const targetDir = resolve(baseDir, directory);
-		
-		if (!targetDir.startsWith(baseDir)) {
+		const dirPath = safeDirectoryPath("./files", directory);
+		if (!dirPath) {
 			return res.status(403).json({ message: "Forbidden: Path traversal detected" });
 		}
-		
-		const dirPath = targetDir;
 
 		if (existsSync(dirPath)) {
 			const files = readdirSync(dirPath);
 
 			const fileList = files.map(file => {
-				const filePath = join(dirPath, file);
+				const filePath = resolve(dirPath, basename(file));
 				const stats = statSync(filePath);
 
 				return {
@@ -192,15 +225,17 @@ router.get("/config/load", (req, res) => {
 			return res.status(400).json({ message: "Config file required" });
 		}
 
-		const safeConfigFile = basename(configFile);
-		if (!safeConfigFile.endsWith('.json')) {
+		if (!basename(configFile).endsWith(".json")) {
 			return res.status(400).json({ message: "Only JSON config files allowed" });
 		}
 
-		const configPath = join("./config", safeConfigFile);
+		const configPath = safePath("./config", configFile);
+		if (!configPath) {
+			return res.status(403).json({ message: "Forbidden: Invalid path" });
+		}
 
 		if (existsSync(configPath)) {
-			const config = readFileSync(configPath, 'utf8');
+			const config = readFileSync(configPath, "utf8");
 			return res.json({ success: true, config: JSON.parse(config) });
 		}
 
